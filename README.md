@@ -23,6 +23,7 @@
 - Next.js
 - TypeScript
 - Tailwind CSS
+- Axios
 
 
 ### Backend
@@ -45,6 +46,8 @@
 - 회원 가입
 - 로그인 / 로그아웃
 - 내 정보 조회
+- JWT 기반 인증
+- 사용자 권한 분리(USER/ ADMIN)
 
 ### 상품
 - 상품 등록
