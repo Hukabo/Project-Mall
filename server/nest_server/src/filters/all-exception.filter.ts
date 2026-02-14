@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { error } from 'console';
 @Catch()
 export class CatchEverythingFilter implements ExceptionFilter {
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
@@ -44,7 +45,7 @@ export class CatchEverythingFilter implements ExceptionFilter {
     );
     console.error('STATUS: ', status);
     console.error('MESSAGE: ', message);
-    // if (cause) console.error('CAUSE: ', cause);
+    if (cause) console.error('CAUSE: ', cause);
     console.error(line());
 
     httpAdapter.reply(response, body, status);
