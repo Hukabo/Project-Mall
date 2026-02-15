@@ -12,14 +12,22 @@ import {
   Post,
   Res,
   UseFilters,
+  UseGuards,
+  UsePipes,
 } from '@nestjs/common';
-import { CreateUserDto } from '../dto/create-user.dto';
+import {
+  type CreateUserDto,
+  createUserSchema,
+} from '../dto/create-user.schema';
 import { UserService } from '../services/user.service';
 import { User } from '../entity/user.entity';
-import { CatchEverythingFilter } from 'src/filters/all-exception.filter';
-import { HttpAdapterHost } from '@nestjs/core';
+import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { RoleGuard } from 'src/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 
 @Controller('users')
+@UseGuards(RoleGuard)
 export class UserController {
   private readonly userService: UserService;
 
@@ -28,7 +36,8 @@ export class UserController {
   }
 
   @Post()
-  @HttpCode(201)
+  @Roles([Role.ADMIN, Role.USER])
+  @UsePipes(new ValidationPipe(createUserSchema))
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     // TODO: 유저 등록
 
@@ -53,13 +62,14 @@ export class UserController {
   }
 
   @Get(':id')
-  find(@Param('id', ParseIntPipe) id: string): unknown {
+  find(@Param('id', ParseIntPipe) id: number): unknown {
     // TODO: 특정 유저 조회
 
     return;
   }
 
   @Get()
+  @Roles([Role.ADMIN])
   findAll() {
     // TODO: 모든 유저 조회
 
@@ -69,14 +79,14 @@ export class UserController {
   }
 
   @Patch(':id')
-  modify(@Param('id') id: string): unknown {
+  modify(@Param('id', ParseIntPipe) id: number): unknown {
     // TODO: 특정 유저 수정
 
     return;
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string): unknown {
+  delete(@Param('id', ParseIntPipe) id: number): unknown {
     // TODO: 특정 유저 삭제
 
     return;
