@@ -7,22 +7,24 @@ import {
 import { UserModule } from './user/modules/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from './user/entity/user.entity';
+import { User } from './user/entities/user.entity';
 import { logger } from './middlewares/logger.middleware';
+import { ConfigModule } from '@nestjs/config';
+import dbConfig from './config/db.config';
+import { ProductModule } from './product/modules/product.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '123123',
-      database: 'test',
-      entities: [User],
-      synchronize: true,
-    }),
     UserModule,
+    ProductModule,
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      load: [dbConfig],
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync(dbConfig.asProvider()),
+    CategoryModule, // 1
   ],
 })
 export class AppModule implements NestModule {
@@ -35,3 +37,12 @@ export class AppModule implements NestModule {
     });
   }
 }
+
+/* 1
+ Return value of the .asProvider() method
+{
+  imports: [ConfigModule.forFeature(databaseConfig)],
+  useFactory: (configuration: ConfigType<typeof databaseConfig>) => configuration,
+  inject: [databaseConfig.KEY] // 'database'
+}
+*/
