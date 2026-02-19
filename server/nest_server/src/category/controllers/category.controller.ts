@@ -8,8 +8,8 @@ import {
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
-import { CategoryService } from './category.service';
-import { type CreateCategoryDto } from './dto/create-category.dto';
+import { CategoryService } from '../services/category.service';
+import { type CreateCategoryDto } from '../dto/create-category.dto';
 // import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Controller('category')

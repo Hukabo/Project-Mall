@@ -12,7 +12,7 @@ import { logger } from './middlewares/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
 import dbConfig from './config/db.config';
 import { ProductModule } from './product/modules/product.module';
-import { CategoryModule } from './category/category.module';
+import { CategoryModule } from './category/modules/category.module';
 
 @Module({
   imports: [
