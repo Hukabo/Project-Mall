@@ -4,15 +4,15 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
-import { UserModule } from './user/modules/user.module';
+import { UserModule } from './domains/user/modules/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from './user/entities/user.entity';
+import { User } from './domains/user/entities/user.entity';
 import { logger } from './middlewares/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
 import dbConfig from './config/db.config';
-import { ProductModule } from './product/modules/product.module';
-import { CategoryModule } from './category/modules/category.module';
+import { ProductModule } from './domains/product/modules/product.module';
+import { CategoryModule } from './domains/category/modules/category.module';
 
 @Module({
   imports: [
