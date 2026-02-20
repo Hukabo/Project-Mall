@@ -20,7 +20,7 @@ import {
   createUserSchema,
 } from '../dto/create-user.schema';
 import { UserService } from '../services/user.service';
-import { User } from '../entities/user.entity';
+import { User } from '../entity/user.entity';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
 import { RoleGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';

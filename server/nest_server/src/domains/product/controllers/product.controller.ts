@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ProductService } from '../services/product.service';
 import { type CreateProductDto } from '../dto/product.dto';
-import { Product } from '../entities/product.entity';
+import { Product } from '../entity/product.entity';
 
 @Controller('product')
 export class ProductController {

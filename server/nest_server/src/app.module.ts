@@ -7,7 +7,7 @@ import {
 import { UserModule } from './domains/user/modules/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from './domains/user/entities/user.entity';
+import { User } from './domains/user/entity/user.entity';
 import { logger } from './middlewares/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
 import dbConfig from './config/db.config';
