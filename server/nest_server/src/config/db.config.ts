@@ -1,8 +1,10 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Category } from 'src/domains/category/entities/category.entity';
-import { Product } from 'src/domains/product/entities/product.entity';
-import { User } from 'src/domains/user/entities/user.entity';
+import { Cart } from 'src/domains/cart/entity/cart.entity';
+import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
+import { Category } from 'src/domains/category/entity/category.entity';
+import { Product } from 'src/domains/product/entity/product.entity';
+import { User } from 'src/domains/user/entity/user.entity';
 
 export default registerAs(
   'database',
@@ -13,7 +15,8 @@ export default registerAs(
     username: process.env.DATABASE_USERNAME,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
-    entities: [User, Product, Category],
+    entities: [User, Product, Category, Cart, CartItem],
     synchronize: process.env.NODE_ENV !== 'production',
+    // logging: true,
   }),
 );

@@ -1,0 +1,60 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import {
+  createCartItemSchema,
+  type CreateCartItemDto,
+} from 'src/domains/cart/cart_item/dto/create-cartItem.dto';
+import {
+  type UpdateCartItemDto,
+  updateCartItemSchema,
+} from 'src/domains/cart/cart_item/dto/update-cartItem.dto';
+import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
+import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { CartService } from '../services/cart.service';
+
+@Controller('cart')
+export class CartController {
+  private readonly cartService: CartService;
+
+  constructor(cartService: CartService) {
+    this.cartService = cartService;
+  }
+
+  @Post(':userId')
+  add(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body(new ValidationPipe(createCartItemSchema))
+    createCartItemDto: CreateCartItemDto,
+  ): Promise<CartItem> {
+    return this.cartService.create(userId, createCartItemDto);
+  }
+
+  @Get(':cartId')
+  findAll(@Param('cartId', ParseIntPipe) id: number): Promise<CartItem[]> {
+    return this.cartService.findAll(id);
+  }
+
+  @Patch(':cartItemId')
+  update(
+    @Param('cartItemId', ParseIntPipe) cartItemId: number,
+    @Body(new ValidationPipe(updateCartItemSchema))
+    updateCartItemDto: UpdateCartItemDto,
+  ): Promise<CartItem> {
+    return this.cartService.update(cartItemId, updateCartItemDto);
+  }
+
+  @Delete(':cartItemId')
+  delete(
+    @Param('cartItemId', ParseIntPipe) cartItemId: number,
+  ): Promise<string> {
+    return this.cartService.delete(cartItemId);
+  }
+}

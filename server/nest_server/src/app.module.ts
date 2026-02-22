@@ -13,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
 import dbConfig from './config/db.config';
 import { ProductModule } from './domains/product/modules/product.module';
 import { CategoryModule } from './domains/category/modules/category.module';
+import { CartModule } from './domains/cart/modules/cart.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CategoryModule } from './domains/category/modules/category.module';
     }),
     TypeOrmModule.forRootAsync(dbConfig.asProvider()),
     CategoryModule, // 1
+    CartModule,
   ],
 })
 export class AppModule implements NestModule {
