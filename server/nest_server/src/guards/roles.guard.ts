@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Roles } from 'src/decorators/roles.decorator';
 import { matchRoles } from 'src/enums/role.enum';
 import { User } from 'src/domains/user/entity/user.entity';
+import { Request } from 'express';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -18,7 +19,7 @@ export class RoleGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const body = request.body;
 
     console.log('guard: ');
