@@ -6,7 +6,7 @@ export const createProductSchema = z
     description: z.string(),
     price: z.number().positive(),
     stock: z.number().positive(),
-    // category:
+    categoryId: z.number().positive(),
   })
   .required();
 
