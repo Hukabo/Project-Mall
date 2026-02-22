@@ -1,5 +1,12 @@
+import { Cart } from 'src/domains/cart/entity/cart.entity';
 import { Role } from 'src/enums/role.enum';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -28,4 +35,10 @@ export class User {
     default: [Role.USER],
   })
   roles: Role[];
+
+  @OneToOne(() => Cart, (cart) => cart.user, {
+    cascade: true,
+  })
+  @JoinColumn() // <--- which indicates that this side of the relationship will own the relationship.
+  cart: Cart;
 }
