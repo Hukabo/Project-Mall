@@ -9,18 +9,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import { InternalServerError } from 'src/errors/internal-server.error';
-import { CreateUserDto } from '../dto/create-user.schema';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { DeleteResult } from 'typeorm/browser';
+import { Cart } from 'src/domains/cart/entity/cart.entity';
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(Cart)
+    private cartRepository: Repository<Cart>,
   ) {}
 
-  async create(user: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     try {
+      const user = this.userRepository.create(createUserDto);
+      const cart = this.cartRepository.create({ user });
+      user.cart = cart;
+
       return await this.userRepository.save(user);
     } catch (error) {
       console.error(error);
@@ -45,12 +54,11 @@ export class UserService {
 
   async findOne(id: number): Promise<User | null> {
     try {
-      const findUser = await this.userRepository.findOneBy({ id });
+      const user = await this.userRepository.findOneBy({ id });
 
-      if (findUser === null)
-        throw new NotFoundException('the user not exists...');
+      if (user === null) throw new NotFoundException('the user not exists...');
 
-      return findUser;
+      return user;
     } catch (error) {
       console.error(error);
 
@@ -65,6 +73,21 @@ export class UserService {
     }
   }
 
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const { username, password, address } = updateUserDto;
+
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('the user not exists...');
+    }
+    user.username = username;
+    user.password = password;
+    user.address = address;
+
+    return await this.userRepository.save(user);
+  }
+
   async delete(id: number): Promise<string> {
     try {
       const res = await this.userRepository.delete(id);
@@ -73,7 +96,7 @@ export class UserService {
         throw new NotFoundException('No user exists...');
       }
 
-      return 'delete user success...';
+      return 'the user was deleted successfully...';
     } catch (error) {
       console.error(error);
 
