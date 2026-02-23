@@ -2,11 +2,13 @@ import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { Category } from 'src/domains/category/entity/category.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('product')
@@ -25,6 +27,12 @@ export class Product {
 
   @Column()
   stock: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @ManyToOne(() => Category, (category) => category.products)
   category: Category;

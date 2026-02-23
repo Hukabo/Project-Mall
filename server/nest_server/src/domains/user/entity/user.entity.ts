@@ -2,10 +2,12 @@ import { Cart } from 'src/domains/cart/entity/cart.entity';
 import { Role } from 'src/enums/role.enum';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('users')
@@ -35,6 +37,12 @@ export class User {
     default: [Role.USER],
   })
   roles: Role[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @OneToOne(() => Cart, (cart) => cart.user, {
     cascade: true,
