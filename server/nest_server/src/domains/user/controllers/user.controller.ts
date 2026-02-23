@@ -24,6 +24,7 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { DeleteResult } from 'typeorm';
 import { type UpdateUserDto, updateUserSchema } from '../dto/update-user.dto';
+import { ResponseUserDto } from '../dto/response-user.dto';
 
 @Controller('users')
 @UseGuards(RoleGuard)
@@ -36,7 +37,7 @@ export class UserController {
 
   @Post()
   @UsePipes(new ValidationPipe(createUserSchema))
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     const res = await this.userService.create(createUserDto);
 
     return res;

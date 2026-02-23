@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -13,6 +14,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { DeleteResult } from 'typeorm/browser';
 import { Cart } from 'src/domains/cart/entity/cart.entity';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { ResponseUserDto } from '../dto/response-user.dto';
 
 @Injectable()
 export class UserService {
@@ -24,15 +26,29 @@ export class UserService {
     private cartRepository: Repository<Cart>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     try {
+      const existingUser = await this.userRepository.findOneBy({
+        email: createUserDto.email,
+      });
+
+      if (existingUser) {
+        throw new ConflictException('the user is already exists...');
+      }
+
       const user = this.userRepository.create(createUserDto);
       const cart = this.cartRepository.create({ user });
       user.cart = cart;
 
-      return await this.userRepository.save(user);
+      const savedUser = await this.userRepository.save(user);
+      return new ResponseUserDto(savedUser);
     } catch (error) {
       console.error(error);
+
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       throw new InternalServerError(
         'Something went wrong while creating a user...',
         error,
@@ -52,11 +68,11 @@ export class UserService {
     }
   }
 
-  async findOne(id: number): Promise<User | null> {
+  async findOne(id: number): Promise<User> {
     try {
       const user = await this.userRepository.findOneBy({ id });
 
-      if (user === null) throw new NotFoundException('the user not exists...');
+      if (!user) throw new NotFoundException('the user not exists...');
 
       return user;
     } catch (error) {
