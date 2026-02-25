@@ -1,10 +1,12 @@
 import { Cart } from 'src/domains/cart/entity/cart.entity';
+import { Order } from 'src/domains/oder/entity/order.entity';
 import { Role } from 'src/enums/role.enum';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -49,4 +51,7 @@ export class User {
   })
   @JoinColumn() // <--- which indicates that this side of the relationship will own the relationship.
   cart: Cart;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }
