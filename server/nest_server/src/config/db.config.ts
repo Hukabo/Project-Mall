@@ -5,6 +5,8 @@ import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { Category } from 'src/domains/category/entity/category.entity';
 import { Product } from 'src/domains/product/entity/product.entity';
 import { User } from 'src/domains/user/entity/user.entity';
+import { Order } from 'src/domains/oder/entity/order.entity';
+import { OrderItem } from 'src/domains/oder/oderItem/entity/orderItem.entity';
 
 export default registerAs(
   'database',
@@ -15,7 +17,7 @@ export default registerAs(
     username: process.env.DATABASE_USERNAME,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
-    entities: [User, Product, Category, Cart, CartItem],
+    entities: [User, Product, Category, Cart, CartItem, Order, OrderItem],
     synchronize: process.env.NODE_ENV !== 'production',
     // logging: true,
   }),
