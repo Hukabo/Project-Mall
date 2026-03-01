@@ -1,5 +1,6 @@
 import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { Category } from 'src/domains/category/entity/category.entity';
+import { OrderItem } from 'src/domains/oder/oderItem/entity/orderItem.entity';
 import {
   Column,
   CreateDateColumn,
@@ -41,4 +42,7 @@ export class Product {
     cascade: true,
   })
   cartItems: CartItem[];
+
+  @OneToMany(() => OrderItem, (item) => item.product)
+  orderItems: OrderItem[];
 }
