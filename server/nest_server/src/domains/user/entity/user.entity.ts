@@ -1,7 +1,9 @@
 import { Cart } from 'src/domains/cart/entity/cart.entity';
 import { Order } from 'src/domains/oder/entity/order.entity';
 import { Role } from 'src/enums/role.enum';
+import * as bcrypt from 'bcrypt';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -54,4 +56,9 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 }
