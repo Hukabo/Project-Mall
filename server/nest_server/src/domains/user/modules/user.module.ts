@@ -9,6 +9,7 @@ import { CartModule } from 'src/domains/cart/modules/cart.module';
   imports: [TypeOrmModule.forFeature([User]), CartModule],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}
 
