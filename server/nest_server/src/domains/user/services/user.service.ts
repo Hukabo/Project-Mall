@@ -11,7 +11,6 @@ import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import { InternalServerError } from 'src/errors/internal-server.error';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { DeleteResult } from 'typeorm/browser';
 import { Cart } from 'src/domains/cart/entity/cart.entity';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseUserDto } from '../dto/response-user.dto';
@@ -89,12 +88,24 @@ export class UserService {
     }
   }
 
-  async findByEmail(email: string) {
-    return await this.userRepository.findOne({
-      where: {
-        email,
-      },
-    });
+  async findByEmail(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found..');
+      }
+
+      return user;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
