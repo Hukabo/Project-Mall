@@ -5,8 +5,8 @@ import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { Category } from 'src/domains/category/entity/category.entity';
 import { Product } from 'src/domains/product/entity/product.entity';
 import { User } from 'src/domains/user/entity/user.entity';
-import { Order } from 'src/domains/oder/entity/order.entity';
-import { OrderItem } from 'src/domains/oder/oderItem/entity/orderItem.entity';
+import { Order } from 'src/domains/order/entity/order.entity';
+import { OrderItem } from 'src/domains/order/orderItem/entity/orderItem.entity';
 
 export default registerAs(
   'database',

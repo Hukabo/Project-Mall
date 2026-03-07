@@ -1,5 +1,5 @@
 import { Cart } from 'src/domains/cart/entity/cart.entity';
-import { Order } from 'src/domains/oder/entity/order.entity';
+import { Order } from 'src/domains/order/entity/order.entity';
 import { Role } from 'src/enums/role.enum';
 import * as bcrypt from 'bcrypt';
 import {
