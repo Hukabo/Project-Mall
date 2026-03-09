@@ -11,14 +11,23 @@ import jwtConfig from 'src/config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from '../strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
+import refreshJwtConfig from 'src/config/refresh-jwt.config';
+import { RefreshJwtStrategy } from '../strategies/refresh.strategy';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Cart]),
     JwtModule.registerAsync(jwtConfig.asProvider()), // JwtService 생성, secret, expiresIn 설정
     ConfigModule.forFeature(jwtConfig), // jwtConfig 주입
+    ConfigModule.forFeature(refreshJwtConfig),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, UserService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    RefreshJwtStrategy,
+    UserService,
+  ],
 })
 export class AuthModule {}
