@@ -15,7 +15,7 @@ import { ProductModule } from './domains/product/modules/product.module';
 import { CategoryModule } from './domains/category/modules/category.module';
 import { CartModule } from './domains/cart/modules/cart.module';
 import { OrderModule } from './domains/order/modules/order.module';
-import { AuthModule } from './domains/auth/modules/auth.modle';
+import { AuthModule } from './domains/auth/modules/auth.module';
 
 @Module({
   imports: [
@@ -26,8 +26,8 @@ import { AuthModule } from './domains/auth/modules/auth.modle';
       load: [dbConfig],
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync(dbConfig.asProvider()),
-    CategoryModule, // 1
+    TypeOrmModule.forRootAsync(dbConfig.asProvider()), // 1
+    CategoryModule,
     CartModule,
     OrderModule,
     AuthModule,
