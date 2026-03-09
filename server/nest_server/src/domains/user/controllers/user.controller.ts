@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   Res,
   UseFilters,
   UseGuards,
@@ -25,6 +26,7 @@ import { Role } from 'src/enums/role.enum';
 import { DeleteResult } from 'typeorm';
 import { type UpdateUserDto, updateUserSchema } from '../dto/update-user.dto';
 import { ResponseUserDto } from '../dto/response-user.dto';
+import { JwtAuthGuard } from 'src/domains/auth/guards/jwt-auth/jwt-auth.guard';
 
 @Controller('users')
 @UseGuards(RoleGuard)
@@ -41,6 +43,12 @@ export class UserController {
     const res = await this.userService.create(createUserDto);
 
     return res;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Req() req) {
+    return this.userService.findOne(req.user.id);
   }
 
   @Get(':id')
