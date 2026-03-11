@@ -42,6 +42,9 @@ export class User {
   })
   roles: Role[];
 
+  @Column({ nullable: true })
+  hashedRefreshToken: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

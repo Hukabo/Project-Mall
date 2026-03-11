@@ -25,6 +25,16 @@ export class UserService {
     private cartRepository: Repository<Cart>,
   ) {}
 
+  async updateHashedRefreshToken(
+    userId: number,
+    hashedRefreshToken: string | undefined,
+  ) {
+    return await this.userRepository.update(
+      { id: userId },
+      { hashedRefreshToken },
+    );
+  }
+
   async create(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     try {
       const existingUser = await this.userRepository.findOneBy({
