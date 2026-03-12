@@ -25,10 +25,7 @@ export class UserService {
     private cartRepository: Repository<Cart>,
   ) {}
 
-  async updateHashedRefreshToken(
-    userId: number,
-    hashedRefreshToken: string | undefined,
-  ) {
+  async updateHashedRefreshToken(userId: number, hashedRefreshToken: any) {
     return await this.userRepository.update(
       { id: userId },
       { hashedRefreshToken },
