@@ -41,7 +41,11 @@ export class AuthService {
       throw new UnauthorizedException('User not found..');
     }
 
-    const currentUser: CurrentUser = { id: user.id, roles: user.roles };
+    const currentUser: CurrentUser = {
+      id: user.id,
+      username: user.username,
+      roles: user.roles,
+    };
 
     return currentUser;
   }
