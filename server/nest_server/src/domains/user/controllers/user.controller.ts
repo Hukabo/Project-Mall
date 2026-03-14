@@ -27,6 +27,7 @@ import { DeleteResult } from 'typeorm';
 import { type UpdateUserDto, updateUserSchema } from '../dto/update-user.dto';
 import { ResponseUserDto } from '../dto/response-user.dto';
 import { JwtAuthGuard } from 'src/domains/auth/guards/jwt-auth/jwt-auth.guard';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
 
 @Controller('users')
 @UseGuards(RoleGuard)
@@ -47,8 +48,8 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Req() req) {
-    return this.userService.findOne(req.user.id);
+  getProfile(@CurrentUser('id') userId: number) {
+    return this.userService.findOne(userId);
   }
 
   @Get(':id')
@@ -76,6 +77,8 @@ export class UserController {
     return res;
   }
 
+  @Roles([Role.ADMIN])
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number): Promise<string> {
     return this.userService.delete(id);
