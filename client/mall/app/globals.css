@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  --color-grey-light-1: #faf9f9;
+  --color-grey-light-2: #f4f2f2;
+  --color-grey-light-3: #f0eeee;
+  --color-grey-light-4: #ccc;
+
+  --color-grey-dark-1: #333;
+  --color-grey-dark-2: #777;
+  --color-grey-dark-3: #999;
+
+  --box-shadow-dark: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+
+  --grid-cols: repeat(5, minmax(min-content, 1fr));
+  --grid-rows: repeat(auto-fit, minmax(max-content, 300px));
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-work: var(--font-work-sans);
+
+  --color-grey-light-1: var(--color-grey-light-1);
+  --color-grey-light-2: var(--color-grey-light-2);
+  --color-grey-light-3: var(--color-grey-light-3);
+  --color-grey-light-4: var(--color-grey-light-4);
+
+  --color-grey-dark-1: var(--color-grey-dark-1);
+  --color-grey-dark-2: var(--color-grey-dark-2);
+  --color-grey-dark-3: var(--color-grey-dark-3);
+
+  --shadow-dark: var(--box-shadow-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
