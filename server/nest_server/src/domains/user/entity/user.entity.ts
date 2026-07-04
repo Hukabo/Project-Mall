@@ -17,22 +17,25 @@ import {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  email: string;
+  email!: string;
 
   @Column()
-  password: string;
+  password!: string;
 
   @Column()
-  username: string;
+  username!: string;
 
   @Column()
-  birth: string;
+  birth!: string;
 
   @Column()
-  address: string;
+  address!: string;
+
+  @Column()
+  phone!: string;
 
   @Column({
     type: 'enum',
@@ -40,25 +43,25 @@ export class User {
     array: true,
     default: [Role.USER],
   })
-  roles: Role[];
+  roles!: Role[];
 
   @Column({ nullable: true })
-  hashedRefreshToken: string;
+  hashedRefreshToken!: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @OneToOne(() => Cart, (cart) => cart.user, {
     cascade: true,
   })
   @JoinColumn() // <--- which indicates that this side of the relationship will own the relationship.
-  cart: Cart;
+  cart!: Cart;
 
   @OneToMany(() => Order, (order) => order.user)
-  orders: Order[];
+  orders!: Order[];
 
   @BeforeInsert()
   async hashPassword() {

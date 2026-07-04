@@ -19,19 +19,14 @@ export class CatchEverythingFilter implements ExceptionFilter {
     const request = ctx.getRequest();
 
     let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: string | object = 'Internal server error';
+    let body: string | object = 'Internal server error';
     let cause: any = undefined;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
-      message = exception.getResponse();
+      body = exception.getResponse();
       cause = exception.cause;
     }
-
-    const body = {
-      status,
-      message,
-    };
 
     const line = (char = '-', fallback = 100) =>
       char.repeat(process.stdout.columns ?? fallback);
@@ -44,7 +39,7 @@ export class CatchEverythingFilter implements ExceptionFilter {
       httpAdapter.getRequestUrl(request),
     );
     console.error('STATUS: ', status);
-    console.error('MESSAGE: ', message);
+    console.error('BODY: ', body);
     if (cause) console.error('CAUSE: ', cause);
     console.error(line());
 

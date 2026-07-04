@@ -19,7 +19,11 @@ export class RefreshJwtStrategy extends PassportStrategy(
     private authService: AuthService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          return request?.cookies?.refreshToken;
+        },
+      ]),
       secretOrKey: refreshJwtConfiguration.secret as string,
       ignoreExpiration: false,
       passReqToCallback: true, // validate 함수 안에서 request 접근 가능
@@ -27,7 +31,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
   }
 
   validate(req: Request, payload: AuthJwtPayload) {
-    const refreshToken = req.get('authorization')?.replace('Bearer ', '');
+    const refreshToken = req.cookies?.refreshToken;
 
     if (!refreshToken) {
       throw new BadRequestException('Invalid token or not exists..');

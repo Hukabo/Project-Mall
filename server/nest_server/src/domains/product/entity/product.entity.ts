@@ -15,34 +15,40 @@ import {
 @Entity('product')
 export class Product {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column()
-  description: string;
+  description!: string;
 
   @Column()
-  price: number;
+  price!: number;
 
   @Column()
-  stock: number;
+  stock!: number;
+
+  @Column('varchar', {
+    array: true,
+    nullable: true,
+  })
+  images!: string[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @ManyToOne(() => Category, (category) => category.products)
-  category: Category;
+  category!: Category;
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.product, {
     cascade: true,
   })
-  cartItems: CartItem[];
+  cartItems!: CartItem[];
 
   @OneToMany(() => OrderItem, (item) => item.product)
-  orderItems: OrderItem[];
+  orderItems!: OrderItem[];
 }

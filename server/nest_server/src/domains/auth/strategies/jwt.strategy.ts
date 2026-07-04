@@ -5,6 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import jwtConfig from 'src/config/jwt.config';
 import { AuthJwtPayload } from 'src/domains/auth/types/auth-jwtPayload';
 import { AuthService } from '../services/auth.service';
+import { request } from 'express';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -14,13 +15,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private authService: AuthService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          return request?.cookies?.accessToken;
+        },
+      ]),
       secretOrKey: jwtConfiguration.secret as string,
     });
   }
 
   async validate(payload: AuthJwtPayload) {
     const userId = payload.sub;
+    console.log('payload = ', payload);
 
     const currentUser = await this.authService.validateJwtUser(userId);
 

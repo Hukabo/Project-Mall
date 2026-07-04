@@ -28,7 +28,7 @@ export class AuthService {
     const isPasswordMatch = await compare(password, user.password);
 
     if (!isPasswordMatch) {
-      throw new UnauthorizedException('Invalid credentials..');
+      throw new UnauthorizedException('not correct password');
     }
 
     return { id: user.id };
@@ -61,7 +61,7 @@ export class AuthService {
     const hashedRefreshToken = await argon2.hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
 
-    return { id: userId, accessToken, refreshToken };
+    return { accessToken, refreshToken };
   }
 
   async refreshAccessToken(userId: number) {

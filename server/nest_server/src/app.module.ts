@@ -7,7 +7,7 @@ import {
 import { UserModule } from './domains/user/modules/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from './domains/user/entity/user.entity';
+
 import { logger } from './middlewares/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
 import dbConfig from './config/db.config';
@@ -16,9 +16,11 @@ import { CategoryModule } from './domains/category/modules/category.module';
 import { CartModule } from './domains/cart/modules/cart.module';
 import { OrderModule } from './domains/order/modules/order.module';
 import { AuthModule } from './domains/auth/modules/auth.module';
+import { testModule } from './domains/test/test.module';
 
 @Module({
   imports: [
+    testModule,
     UserModule,
     ProductModule,
     ConfigModule.forRoot({
