@@ -1,4 +1,9 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../entity/product.entity';
 import { Repository } from 'typeorm';
@@ -17,7 +22,10 @@ export class ProductService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
+  async create(
+    createProductDto: CreateProductDto,
+    files: Array<Express.Multer.File>,
+  ): Promise<Product> {
     try {
       const category = await this.categoryRepository.findOneBy({
         id: createProductDto.categoryId,
@@ -27,9 +35,22 @@ export class ProductService {
         throw new NotFoundException('해당 카테고리는 없습니다.');
       }
 
+      console.log(files);
+      if (!files || files.length === 0) {
+        throw new BadRequestException(
+          '이미지 파일은 1장 이상 업로드 되어야합니다.',
+        );
+      }
+      files.forEach((file) => {
+        console.log('file: ', file);
+      });
+
+      const images = files.map((file) => file.filename);
+
       const product = this.productRepository.create({
         ...createProductDto,
         category,
+        images,
       });
 
       return await this.productRepository.save(product);
@@ -43,14 +64,20 @@ export class ProductService {
     }
   }
 
-  async find(id: number): Promise<Product | null> {
+  async find(id: number) {
     try {
-      const res = await this.productRepository.findOneBy({ id });
+      const product = await this.productRepository.findOneBy({ id });
 
-      if (res === null)
+      if (product === null)
         throw new NotFoundException('the product not exists...');
 
-      return res;
+      return {
+        ...product,
+        images: product.images.map(
+          (filename) =>
+            `http://localhost:8080/asset/product_images/${filename}`,
+        ),
+      };
     } catch (error) {
       console.error(error);
 
