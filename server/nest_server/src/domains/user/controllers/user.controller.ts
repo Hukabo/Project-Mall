@@ -28,9 +28,9 @@ import { type UpdateUserDto, updateUserSchema } from '../dto/update-user.dto';
 import { ResponseUserDto } from '../dto/response-user.dto';
 import { JwtAuthGuard } from 'src/domains/auth/guards/jwt-auth/jwt-auth.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('users')
-@UseGuards(RoleGuard)
 export class UserController {
   private readonly userService: UserService;
 
@@ -39,6 +39,7 @@ export class UserController {
   }
 
   @Post()
+  @Public()
   @UsePipes(new ValidationPipe(createUserSchema))
   async create(@Body() createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     const res = await this.userService.create(createUserDto);
@@ -46,7 +47,6 @@ export class UserController {
     return res;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@CurrentUser('id') userId: number) {
     return this.userService.findOne(userId);
@@ -78,7 +78,6 @@ export class UserController {
   }
 
   @Roles([Role.ADMIN])
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number): Promise<string> {
     return this.userService.delete(id);
