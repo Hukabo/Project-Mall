@@ -12,6 +12,7 @@ import refreshJwtConfig from 'src/config/refresh-jwt.config';
 import { type ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
 import { CurrentUser } from '../types/current-user';
+import { User } from 'src/domains/user/entity/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     private refreshTokenConfig: ConfigType<typeof refreshJwtConfig>,
   ) {}
 
+  // 로그인 유저 이메일, 비밀번호 검증 함수
   async validateUesr(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
 
@@ -31,9 +33,10 @@ export class AuthService {
       throw new UnauthorizedException('not correct password');
     }
 
-    return { id: user.id };
+    return { id: user.id, roles: user.roles };
   }
 
+  // jwt토큰 payload에서 추출된 유저id로 현재 유저 식별
   async validateJwtUser(userId: number) {
     const user = await this.userService.findOne(userId);
 
@@ -50,31 +53,32 @@ export class AuthService {
     return currentUser;
   }
 
-  async login(userId: number) {
-    // const payload: AuthJwtPayload = { sub: userId };
-
-    // const token = this.jwtService.sign(payload);
-    // const refreshToken = this.jwtService.sign(payload, this.refreshTokenConfig);
-
-    const { accessToken, refreshToken } = await this.generateToken(userId);
+  async login(user: User) {
+    const { accessToken, refreshToken } = await this.generateToken(user);
 
     const hashedRefreshToken = await argon2.hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
+    await this.userService.updateHashedRefreshToken(
+      user.id,
+      hashedRefreshToken,
+    );
 
     return { accessToken, refreshToken };
   }
 
-  async refreshAccessToken(userId: number) {
-    const { accessToken, refreshToken } = await this.generateToken(userId);
+  async refreshAccessToken(user: User) {
+    const { accessToken, refreshToken } = await this.generateToken(user);
 
     const hashedRefreshToken = await argon2.hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
+    await this.userService.updateHashedRefreshToken(
+      user.id,
+      hashedRefreshToken,
+    );
 
-    return { id: userId, accessToken, refreshToken };
+    return { id: user.id, accessToken, refreshToken };
   }
 
-  async generateToken(userId: number) {
-    const payload: AuthJwtPayload = { sub: userId };
+  async generateToken(user: User) {
+    const payload: AuthJwtPayload = { sub: user.id, roles: user.roles };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
       this.jwtService.signAsync(payload, this.refreshTokenConfig),

@@ -20,6 +20,7 @@ import { testModule } from './domains/test/test.module';
 
 @Module({
   imports: [
+    AuthModule,
     testModule,
     UserModule,
     ProductModule,
@@ -32,7 +33,6 @@ import { testModule } from './domains/test/test.module';
     CategoryModule,
     CartModule,
     OrderModule,
-    AuthModule,
   ],
 })
 export class AppModule implements NestModule {

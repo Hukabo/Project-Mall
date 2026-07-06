@@ -15,6 +15,8 @@ import { LocalAuthGuard } from '../guards/local-auth/local-auth.guard';
 import { RefreshAuthGuard } from '../guards/refresh-auth/refresh-auth.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
 import type { CookieOptions, Response } from 'express';
+import { Public } from 'src/decorators/public.decorator';
+import { User } from 'src/domains/user/entity/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -25,13 +27,13 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req, @Res({ passthrough: true }) res: Response) {
-    console.log('auth login controller');
-    const { accessToken, refreshToken } = await this.authService.login(
-      req.user.id,
-    );
+    const user: User = req.user;
+
+    const { accessToken, refreshToken } = await this.authService.login(user);
 
     this.setTokensToCookie(res, accessToken, refreshToken);
 

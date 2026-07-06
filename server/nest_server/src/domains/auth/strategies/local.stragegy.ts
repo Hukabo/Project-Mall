@@ -12,7 +12,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(email: string, password: string): Promise<any> {
-    console.log('local guard');
     return this.authService.validateUesr(email, password);
   }
 }
