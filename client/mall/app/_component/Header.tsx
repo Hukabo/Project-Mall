@@ -2,15 +2,13 @@
 
 import Image from "next/image";
 import { useContext } from "react";
-import { UserContext } from "../_lib/context/UserContext";
+import { UserContext } from "../_lib/context/UserProvider";
 import Link from "next/link";
 import { logout } from "../_lib/api/user";
 import { useRouter } from "next/navigation";
+import { User } from "../_lib/types/user";
 
-export default function Header() {
-  const router = useRouter();
-  const user = useContext(UserContext);
-
+export default function Header({ user }: { user: User | null }) {
   return (
     <header className="py-2.5 px-12 flex justify-between shadow-2xs">
       <Link href="/" className="inline-block">
@@ -39,7 +37,7 @@ export default function Header() {
           <>
             <span className="border-e pr-3">{user.username}님</span>
 
-            <Link href="/mypage" className="border-e pr-3">
+            <Link href={`/user`} className="border-e pr-3">
               내정보
             </Link>
 

@@ -35,14 +35,15 @@ export async function login(e: SyntheticEvent, form: any) {
     body: JSON.stringify(form),
   })
     .then(async (res) => {
-      const data = await res.json();
       if (!res.ok) {
-        alert(data.message);
-        throw new Error(data.message);
+        throw new Error("로그인 실패");
       }
+
+      return res.json();
     })
     .then((data) => {
       console.log(`data = ${data}`);
+      alert(data.message);
     })
     .catch((err) => {
       console.log(err);
