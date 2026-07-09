@@ -17,6 +17,7 @@
 
   --grid-cols: repeat(5, minmax(min-content, 1fr));
   --grid-rows: repeat(auto-fit, minmax(max-content, 300px));
+  --grid-cols-2: repeat(2, minmax(max-content, 1fr));
 }
 
 @theme inline {
