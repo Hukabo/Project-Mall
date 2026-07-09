@@ -1,11 +1,13 @@
 export interface User {
+  id: number;
+  email: string;
   username: string;
   phone: string;
   address: string;
-  role: Role;
+  roles: string[];
 }
 
-enum Role {
-  User,
-  Admin,
-}
+// enum Role {
+//   User,
+//   Admin,
+// }

@@ -51,7 +51,10 @@ export default function JoinPage() {
             />
           </a>
         </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        <form
+          onSubmit={async (e) => handleSubmit(e)}
+          className="flex flex-col gap-2"
+        >
           <label htmlFor="email">이메일: {""}</label>
           <input
             type="email"

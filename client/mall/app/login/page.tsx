@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useContext, useState } from "react";
 import { login } from "../_lib/api/user";
+import { UserContext } from "../_lib/context/UserProvider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { refetchUser } = useContext(UserContext);
 
   const [form, setForm] = useState({
     email: "",
@@ -30,6 +32,7 @@ export default function LoginPage() {
         <form
           onSubmit={async (e) => {
             await login(e, form);
+            await refetchUser();
             router.replace("/");
           }}
           className="flex flex-col gap-2"
