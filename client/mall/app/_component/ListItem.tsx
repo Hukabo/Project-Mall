@@ -13,6 +13,7 @@ export default function ListItem({ name }: ListItemProps) {
           alt="cheveron-right image"
           width={25}
           height={25}
+          className="h-6 w-auto"
         />
         <a
           href="/clothes"
