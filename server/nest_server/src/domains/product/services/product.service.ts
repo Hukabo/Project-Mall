@@ -66,18 +66,17 @@ export class ProductService {
 
   async find(id: number) {
     try {
-      const product = await this.productRepository.findOneBy({ id });
+      const product = await this.productRepository.findOne({
+        where: { id },
+        relations: {
+          category: true,
+        },
+      });
 
       if (product === null)
         throw new NotFoundException('the product not exists...');
 
-      return {
-        ...product,
-        images: product.images.map(
-          (filename) =>
-            `http://localhost:8080/asset/product_images/${filename}`,
-        ),
-      };
+      return product;
     } catch (error) {
       console.error(error);
 

@@ -37,6 +37,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { existsSync } from 'fs';
 import type { Response } from 'express';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('product')
 export class ProductController {
@@ -54,17 +55,17 @@ export class ProductController {
     @UploadedFiles()
     files: Array<Express.Multer.File>,
   ): Promise<Product> {
-    console.log('files: ', files);
-
     return this.productService.create(createProductDto, files);
   }
 
   @Get(':id')
+  @Public()
   find(@Param('id', ParseIntPipe) id: number): Promise<Product | null> {
     return this.productService.find(id);
   }
 
   @Get('images/:filename')
+  @Public()
   getImage(@Param('filename') filename, @Res() res: Response) {
     const filePath = join(cwd(), 'asset', 'product_images', filename);
 
@@ -74,6 +75,7 @@ export class ProductController {
   }
 
   @Get()
+  @Public()
   findAll(): Promise<Product[]> {
     return this.productService.findAll();
   }

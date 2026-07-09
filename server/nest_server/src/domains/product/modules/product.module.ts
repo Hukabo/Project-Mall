@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
     TypeOrmModule.forFeature([Product, Category]),
     MulterModule.register({
       storage: diskStorage({
-        destination: join(process.cwd(), 'asset', 'products_images'),
+        destination: join(process.cwd(), 'asset', 'product_images'),
         filename: (_req, file, cb) => {
           const ext = extname(file.originalname);
           cb(null, `${uuidv4()}${ext}`);
