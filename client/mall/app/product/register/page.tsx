@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createProduct } from "../../_lib/api/product";
+import Button from "@/app/_component/Button";
 
 export default function ProductRegisterPage() {
   const initialForm = {
@@ -198,15 +199,8 @@ export default function ProductRegisterPage() {
 
               {/* button container */}
               <div className="flex mt-5 py-5 px-10 gap-4 justify-end align-center">
-                <button className="block px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-md text-white shadow">
-                  임시 저장
-                </button>
-                <button
-                  type="submit"
-                  className="block px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-md text-white shadow"
-                >
-                  등록 하기
-                </button>
+                <Button text="임시 저장" />
+                <Button text="등록 하기" />
               </div>
             </form>
           </div>
