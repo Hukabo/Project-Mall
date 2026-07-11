@@ -21,7 +21,7 @@ export default function ImageGallery({ images }: { images: string[] }) {
       {/* 대표 이미지 */}
       <div className="relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200 mb-2">
         <Image
-          src={`${process.env.NEXT_PUBLIC_LOCAL_API_URL}/product/images/${images[0]}`}
+          src={`${process.env.NEXT_PUBLIC_LOCAL_API_URL}/product/images/${images[selected]}`}
           alt="상품 이미지"
           fill
           priority
