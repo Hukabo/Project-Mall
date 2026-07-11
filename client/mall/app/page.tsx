@@ -17,7 +17,7 @@ export default function Home() {
 
   useEffect(() => {
     async function loadProducts() {
-      const products = await getAllProducts();
+      const products: Product[] = await getAllProducts();
       setProducts(products);
     }
 
