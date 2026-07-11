@@ -13,20 +13,50 @@ export class CategoryService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    return await this.categoryRepository.save(createCategoryDto);
+    const category = this.categoryRepository.create(createCategoryDto);
+
+    if (createCategoryDto.parentId) {
+      category.parent = { id: createCategoryDto.parentId } as Category;
+    }
+
+    return this.categoryRepository.save(category);
   }
 
   async findAll(): Promise<Category[]> {
-    return await this.categoryRepository.find();
+    return await this.categoryRepository.find({
+      relations: {
+        parent: true,
+        products: true,
+        children: true,
+      },
+    });
   }
 
-  async findOne(id: number): Promise<Category | null> {
-    const res = await this.categoryRepository.findOneBy({ id });
+  async findOne(id: number): Promise<Category> {
+    const res = await this.categoryRepository.findOne({
+      where: { id },
+      relations: {
+        parent: true,
+        products: true,
+        children: true,
+      },
+    });
 
     if (res === null) {
       throw new NotFoundException(`${id} of category not exists...`);
     }
     return res;
+  }
+
+  async findRoot() {
+    return this.categoryRepository.find({
+      where: { parent: undefined },
+      relations: {
+        children: {
+          products: true,
+        },
+      },
+    });
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
