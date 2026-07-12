@@ -45,6 +45,11 @@ export class CategoryController {
     return await this.categoryService.findAll();
   }
 
+  @Get('child')
+  async findChildren() {
+    return await this.categoryService.findChildren();
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.categoryService.findOne(id);

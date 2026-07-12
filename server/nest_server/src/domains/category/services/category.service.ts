@@ -49,7 +49,7 @@ export class CategoryService {
   }
 
   async findRoot() {
-    return this.categoryRepository.find({
+    return await this.categoryRepository.find({
       where: { parent: undefined },
       relations: {
         children: {
@@ -57,6 +57,23 @@ export class CategoryService {
         },
       },
     });
+  }
+
+  async findChildren() {
+    const categories = await this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoin('category.children', 'child')
+      .where('child.id IS NULL')
+      .select(['category.id'])
+      .getMany();
+
+    const categoriesId: number[] = [];
+
+    categories.forEach((category) => {
+      categoriesId.push(category.id);
+    });
+
+    return categoriesId;
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
