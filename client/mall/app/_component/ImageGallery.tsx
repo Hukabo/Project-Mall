@@ -8,7 +8,7 @@ export default function ImageGallery({ images }: { images: string[] }) {
 
   console.log("iamges = ", images);
 
-  if (images.length === 0) {
+  if (!images) {
     return (
       <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
         <span className="text-sm">이미지 없음</span>
