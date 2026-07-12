@@ -17,7 +17,7 @@ export class ValidationPipe implements PipeTransform {
       // console.log(metadata.metatype);
       // console.log(metadata.type);
       return parsedValue;
-    } catch (error) {
+    } catch (error: any) {
       throw new BadRequestException(error.issues ?? error);
     }
   }

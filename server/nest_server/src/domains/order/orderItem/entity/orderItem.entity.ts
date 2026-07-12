@@ -11,16 +11,16 @@ import { Product } from 'src/domains/product/entity/product.entity';
 @Entity('order_item')
 export class OrderItem {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  quantity: number;
+  quantity!: number;
 
   @ManyToOne(() => Order, (order) => order.orderItems)
   @JoinColumn()
-  order: Order;
+  order!: Order;
 
   @ManyToOne(() => Product, (product) => product.orderItems)
   @JoinColumn()
-  product: Product;
+  product!: Product;
 }

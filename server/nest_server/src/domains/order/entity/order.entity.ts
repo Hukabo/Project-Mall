@@ -14,30 +14,30 @@ import { User } from 'src/domains/user/entity/user.entity';
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  shippingAddress: string;
+  shippingAddress!: string;
 
   @Column()
-  totalPrice: number;
+  totalPrice!: number;
 
   @Column({
     type: 'enum',
     enum: OrderStatus,
     default: OrderStatus.PENDING,
   })
-  status: OrderStatus;
+  status!: OrderStatus;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @ManyToOne(() => User, (user) => user.orders)
-  user: User;
+  user!: User;
 
   @OneToMany(() => OrderItem, (item) => item.order)
-  orderItems: OrderItem[];
+  orderItems!: OrderItem[];
 }

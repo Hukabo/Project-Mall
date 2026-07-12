@@ -11,11 +11,11 @@ import {
 @Entity()
 export class Cart {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @OneToOne(() => User, (user) => user.cart)
-  user: User;
+  user!: User;
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
-  cartItems: CartItem[];
+  cartItems!: CartItem[];
 }
