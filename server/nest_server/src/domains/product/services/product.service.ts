@@ -35,15 +35,11 @@ export class ProductService {
         throw new NotFoundException('해당 카테고리는 없습니다.');
       }
 
-      console.log(files);
       if (!files || files.length === 0) {
         throw new BadRequestException(
           '이미지 파일은 1장 이상 업로드 되어야합니다.',
         );
       }
-      files.forEach((file) => {
-        console.log('file: ', file);
-      });
 
       const images = files.map((file) => file.filename);
 
