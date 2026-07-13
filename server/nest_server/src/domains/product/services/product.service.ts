@@ -60,7 +60,7 @@ export class ProductService {
     }
   }
 
-  async find(id: number) {
+  async findById(id: number) {
     try {
       const product = await this.productRepository.findOne({
         where: { id },
@@ -85,6 +85,27 @@ export class ProductService {
         error,
       );
     }
+  }
+
+  async findPage(page: number, limit: number): Promise<{}> {
+    const [products, total] = await this.productRepository.findAndCount({
+      relations: {
+        category: true,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        id: 'DESC',
+      },
+    });
+
+    return {
+      products,
+      total,
+      page,
+      limit,
+      hasNext: page * limit < total,
+    };
   }
 
   async findAll(): Promise<Product[]> {

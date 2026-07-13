@@ -27,10 +27,23 @@ export async function createProduct(e: SyntheticEvent, form: any) {
     .catch((err) => console.error(err));
 }
 
-export async function getAllProducts(): Promise<Product[]> {
-  return await fetch("http://localhost:8080/product", {
-    method: "GET",
-  })
+export async function getProducts(
+  page: number,
+  limit = 20,
+): Promise<{
+  products: Product[];
+  limit: number;
+  page: number;
+  total: number;
+  hasNext: boolean;
+}> {
+  return await fetch(
+    `http://localhost:8080/product/?page=${page}&limit=${limit}`,
+    {
+      method: "GET",
+      cache: "no-store",
+    },
+  )
     .then((res) => {
       if (!res.ok)
         throw new Error("something went wrong while getting all products...");
