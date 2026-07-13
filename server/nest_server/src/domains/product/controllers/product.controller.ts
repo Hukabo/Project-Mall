@@ -12,6 +12,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Res,
   UploadedFiles,
   UseGuards,
@@ -27,7 +28,7 @@ import { Product } from '../entity/product.entity';
 import {
   updateProductSchema,
   type UpdateProductDto,
-} from '../dto/update-product.dts';
+} from '../dto/update-product.dto';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
 import { RoleGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -49,7 +50,7 @@ export class ProductController {
   @Post()
   @Roles([Role.ADMIN])
   @UseInterceptors(FilesInterceptor('images', 3))
-  crete(
+  async crete(
     @Body(new ValidationPipe(createProductSchema))
     createProductDto: CreateProductDto,
     @UploadedFiles()
@@ -60,13 +61,22 @@ export class ProductController {
 
   @Get(':id')
   @Public()
-  find(@Param('id', ParseIntPipe) id: number): Promise<Product | null> {
-    return this.productService.find(id);
+  async find(@Param('id', ParseIntPipe) id: number): Promise<Product | null> {
+    return this.productService.findById(id);
+  }
+
+  @Get()
+  @Public()
+  async findPage(
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+  ): Promise<{}> {
+    return await this.productService.findPage(+page, +limit);
   }
 
   @Get('images/:filename')
   @Public()
-  getImage(@Param('filename') filename, @Res() res: Response) {
+  async getImage(@Param('filename') filename, @Res() res: Response) {
     const filePath = join(cwd(), 'asset', 'product_images', filename);
 
     if (!existsSync(filePath))
@@ -76,13 +86,13 @@ export class ProductController {
 
   @Get()
   @Public()
-  findAll(): Promise<Product[]> {
+  async findAll(): Promise<Product[]> {
     return this.productService.findAll();
   }
 
   @Patch(':id')
   @Roles([Role.ADMIN])
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ValidationPipe(updateProductSchema))
     updateProductDto: UpdateProductDto,
@@ -92,7 +102,7 @@ export class ProductController {
 
   @Delete(':id')
   @Roles([Role.ADMIN])
-  delete(@Param('id', ParseIntPipe) id: number): Promise<string> {
+  async delete(@Param('id', ParseIntPipe) id: number): Promise<string> {
     return this.productService.delete(id);
   }
 }

@@ -15,7 +15,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.useGlobalFilters(new CatchEverythingFilter(httpAdapterHost));
+  // app.useGlobalFilters(new CatchEverythingFilter(httpAdapterHost));
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.use(cookieParser());
 
