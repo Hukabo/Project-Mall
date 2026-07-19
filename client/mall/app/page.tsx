@@ -1,5 +1,3 @@
-"use client";
-
 import Header from "./_component/Header";
 import Sidebar from "./_component/Sidebar";
 import { useContext, useEffect, useState } from "react";
@@ -10,17 +8,13 @@ import { Product } from "./_lib/types/product";
 import ProductCard from "./_component/ProductCard";
 import Link from "next/link";
 import ProductList from "./_component/ProductList";
+import Body from "./_component/Body";
 
 export default function Home() {
-  const { user } = useContext(UserContext);
-
   return (
     <>
-      <Header user={user} />
-      <main className="flex">
-        <Sidebar />
-        <ProductList />
-      </main>
+      <Header />
+      <Body />
     </>
   );
 }
