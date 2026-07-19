@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../entity/product.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { InternalServerError } from 'src/errors/internal-server.error';
 import { Category } from 'src/domains/category/entity/category.entity';
-import { UpdateProductDto } from '../dto/update-product.dts';
+import { UpdateProductDto } from '../dto/update-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -87,17 +87,24 @@ export class ProductService {
     }
   }
 
-  async findPage(page: number, limit: number): Promise<{}> {
-    const [products, total] = await this.productRepository.findAndCount({
-      relations: {
-        category: true,
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-      order: {
-        id: 'DESC',
-      },
-    });
+  async findPage(page: number, limit: number, search?: string): Promise<{}> {
+    const qb = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category');
+
+    if (search) {
+      qb.where('product.name ILIKE :search', {
+        search: `%${search}%`,
+      }).orWhere('category.name ILIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    qb.skip((page - 1) * limit)
+      .take(limit)
+      .orderBy('product.id', 'DESC');
+
+    const [products, total] = await qb.getManyAndCount();
 
     return {
       products,

@@ -70,8 +70,9 @@ export class ProductController {
   async findPage(
     @Query('page') page = 1,
     @Query('limit') limit = 20,
+    @Query('search') search?: string,
   ): Promise<{}> {
-    return await this.productService.findPage(+page, +limit);
+    return await this.productService.findPage(+page, +limit, search?.trim());
   }
 
   @Get('images/:filename')
