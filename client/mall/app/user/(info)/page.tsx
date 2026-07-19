@@ -13,7 +13,7 @@ export default function UserInfoPage() {
   return (
     <>
       <div className="relative min-h-screen min-w-125 bg-gray-100">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[70%] min-w-125 w-[50vw] mx-auto flex flex-col items-center">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[-70%] min-w-125 w-[50vw] mx-auto flex flex-col items-center">
           {/* 사용자 이름 및 이메일 */}
           <div className="w-full shadow border border-gray-50 rounded-lg p-4 px-8 bg-amber-400">
             <div className="flex flex-col items-start">
