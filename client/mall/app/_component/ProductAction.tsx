@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Product } from "../_lib/types/product";
+import { api } from "../_lib/api/api";
+import { CartItem } from "../_lib/types/cart_item";
 
 export default function ProductActions({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
@@ -9,11 +11,16 @@ export default function ProductActions({ product }: { product: Product }) {
 
   const isOutOfStock = product.stock === 0;
 
-  function handleAddToCart() {
-    // 실제 프로젝트에서는 장바구니 API 호출 또는 zustand/context 업데이트
-    console.log("장바구니 담기:", { productId: product.id, qty });
+  async function handleAddToCart() {
+    const res = await api.post<CartItem>("cart", {
+      productId: product.id,
+      quantity: qty,
+    });
+
     setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    setTimeout(() => {
+      setAdded(false);
+    }, 1000);
   }
 
   return (
