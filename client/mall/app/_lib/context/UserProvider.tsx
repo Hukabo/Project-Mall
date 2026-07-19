@@ -3,6 +3,7 @@
 import { createContext, useEffect, useState } from "react";
 import { getUser } from "../api/user";
 import { User } from "../types/user";
+import Loading from "@/app/_component/Loading";
 
 interface UserContextType {
   user: User | null;
@@ -40,7 +41,7 @@ export default function UserProvider({
     refetchUser();
   }, []);
 
-  if (loading) return <div>loading..</div>;
+  if (loading) return <Loading />;
 
   return (
     <UserContext value={{ user, loading, refetchUser }}>{children}</UserContext>
