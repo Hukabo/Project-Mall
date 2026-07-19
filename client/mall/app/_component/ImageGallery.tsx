@@ -6,8 +6,6 @@ import { useState } from "react";
 export default function ImageGallery({ images }: { images: string[] }) {
   const [selected, setSelected] = useState(0);
 
-  console.log("iamges = ", images);
-
   if (!images) {
     return (
       <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
