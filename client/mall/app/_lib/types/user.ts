@@ -1,3 +1,5 @@
+import { Cart } from "./cart";
+
 export interface User {
   id: number;
   email: string;
@@ -5,6 +7,7 @@ export interface User {
   phone: string;
   address: string;
   roles: string[];
+  cart: Cart;
 }
 
 // enum Role {

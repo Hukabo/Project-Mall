@@ -10,3 +10,10 @@ export interface Product {
   category: Category;
   createdAt: string;
 }
+
+export interface PageResponse {
+  products: Product[];
+  limit: number;
+  total: number;
+  hasNext: boolean;
+}
