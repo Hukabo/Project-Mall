@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Category } from '../entity/category.entity';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 
@@ -55,6 +55,17 @@ export class CategoryService {
         children: {
           products: true,
         },
+      },
+    });
+  }
+
+  async findParent() {
+    return await this.categoryRepository.find({
+      where: {
+        parent: IsNull(),
+      },
+      relations: {
+        children: true,
       },
     });
   }

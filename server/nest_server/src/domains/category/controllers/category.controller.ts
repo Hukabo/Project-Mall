@@ -25,6 +25,7 @@ import { ValidationPipe } from 'src/pipes/validation.pipe';
 import { RoleGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('category')
 @UseGuards(RoleGuard)
@@ -48,6 +49,12 @@ export class CategoryController {
   @Get('child')
   async findChildren() {
     return await this.categoryService.findChildren();
+  }
+
+  @Get('parent')
+  @Public()
+  async findParent() {
+    return await this.categoryService.findParent();
   }
 
   @Get(':id')
