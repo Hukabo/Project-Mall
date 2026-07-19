@@ -19,6 +19,7 @@ import {
 import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
 import { CartService } from '../services/cart.service';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
 
 @Controller('cart')
 export class CartController {
@@ -28,9 +29,9 @@ export class CartController {
     this.cartService = cartService;
   }
 
-  @Post(':userId')
+  @Post()
   add(
-    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser('id') userId: number,
     @Body(new ValidationPipe(createCartItemSchema))
     createCartItemDto: CreateCartItemDto,
   ): Promise<CartItem> {

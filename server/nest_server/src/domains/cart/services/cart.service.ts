@@ -32,14 +32,20 @@ export class CartService {
     try {
       const user = await this.userRepository.findOne({
         where: { id: userId },
-        relations: ['cart'],
+        relations: {
+          cart: {
+            cartItems: {
+              product: true,
+            }
+          }
+        },
       });
 
       if (!user) {
         throw new NotFoundException('the user is not exists...');
       }
       const cart = user.cart;
-
+      
       const { productId, quantity } = createCartItemDto;
 
       const product = await this.productRepository.findOneBy({ id: productId });
@@ -48,13 +54,20 @@ export class CartService {
         throw new NotFoundException('해당 상품이 없습니다.');
       }
 
+      // 해당 상품이 이미 장바구니에 있다면 수량 증가
+      const existingItem = cart.cartItems.find((item) => item.product.id === productId);
+
+      if(existingItem) {
+        return await this.update(existingItem.id, {quantity: existingItem.quantity + quantity});
+      }
+
       const cartItem = this.cartItemRepository.create({
         quantity,
         cart,
         product,
       });
 
-      return await this.cartItemRepository.save(cartItem);
+      return  await this.cartItemRepository.save(cartItem);
     } catch (error) {
       console.error(error);
 
@@ -86,8 +99,11 @@ export class CartService {
           id: true,
           quantity: true,
           product: {
+            id: true,
             name: true,
+            price: true,
             description: true,
+            stock: true,
           },
         },
       });
