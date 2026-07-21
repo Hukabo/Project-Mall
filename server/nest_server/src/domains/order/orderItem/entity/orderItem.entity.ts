@@ -13,10 +13,20 @@ export class OrderItem {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  // 스냅샷을 남기기 위해서 Product와 중복된 컬럼명 사용
+  @Column()
+  name!: string;
+
+  @Column()
+  price!: number;
+
+  @Column()
+  description!: string;
+
   @Column()
   quantity!: number;
 
-  @ManyToOne(() => Order, (order) => order.orderItems)
+  @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   @JoinColumn()
   order!: Order;
 

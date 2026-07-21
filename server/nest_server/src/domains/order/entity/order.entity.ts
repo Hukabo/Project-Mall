@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { OrderItem } from '../orderItem/entity/orderItem.entity';
 import { User } from 'src/domains/user/entity/user.entity';
+import { PaymentMethod } from 'src/enums/payment.enum';
 
 @Entity('orders')
 export class Order {
@@ -29,6 +30,13 @@ export class Order {
   })
   status!: OrderStatus;
 
+  @Column({
+    type: 'enum',
+    enum: PaymentMethod,
+    default: PaymentMethod.CREDIT_CARD,
+  })
+  payment!: PaymentMethod;
+
   @CreateDateColumn()
   createdAt!: Date;
 
@@ -38,6 +46,8 @@ export class Order {
   @ManyToOne(() => User, (user) => user.orders)
   user!: User;
 
-  @OneToMany(() => OrderItem, (item) => item.order)
+  @OneToMany(() => OrderItem, (item) => item.order, {
+    cascade: true,
+  })
   orderItems!: OrderItem[];
 }
