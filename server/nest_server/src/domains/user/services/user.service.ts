@@ -25,7 +25,7 @@ export class UserService {
     private cartRepository: Repository<Cart>,
   ) {}
 
-  async updateHashedRefreshToken(userId: number, hashedRefreshToken: any) {
+  async updateHashedRefreshToken(userId: string, hashedRefreshToken: any) {
     return await this.userRepository.update(
       { id: userId },
       { hashedRefreshToken },
@@ -74,21 +74,21 @@ export class UserService {
     }
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(id: string): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
         where: {
-          id
+          id,
         },
         relations: {
-          cart: true
+          cart: true,
         },
         select: {
           password: false,
           cart: {
             id: true,
-          }
-        }
+          },
+        },
       });
 
       if (!user) throw new NotFoundException('the user not exists...');
@@ -128,7 +128,7 @@ export class UserService {
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const { username, password, address } = updateUserDto;
 
     const user = await this.userRepository.findOneBy({ id });
@@ -143,7 +143,7 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async delete(id: number): Promise<string> {
+  async delete(id: string): Promise<string> {
     try {
       const res = await this.userRepository.delete(id);
 

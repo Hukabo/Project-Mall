@@ -8,7 +8,7 @@ export class ResponseUserDto {
     this.roles = user.roles;
   }
 
-  id: number;
+  id: string;
   username: string;
   roles: Role[];
 }

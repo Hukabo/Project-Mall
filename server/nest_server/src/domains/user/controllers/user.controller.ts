@@ -7,7 +7,6 @@ import {
   HttpException,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Req,
@@ -48,12 +47,12 @@ export class UserController {
   }
 
   @Get('profile')
-  getProfile(@CurrentUser('id') userId: number) {
+  getProfile(@CurrentUser('id') userId: string) {
     return this.userService.findOne(userId);
   }
 
   @Get(':id')
-  find(@Param('id', ParseIntPipe) id: number): Promise<User | null> {
+  find(@Param('id') id: string): Promise<User | null> {
     const res = this.userService.findOne(id);
 
     return res;
@@ -69,7 +68,7 @@ export class UserController {
 
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body(new ValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto,
   ): Promise<User> {
     const res = this.userService.update(id, updateUserDto);
@@ -79,7 +78,7 @@ export class UserController {
 
   @Roles([Role.ADMIN])
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number): Promise<string> {
+  delete(@Param('id') id: string): Promise<string> {
     return this.userService.delete(id);
   }
 }
