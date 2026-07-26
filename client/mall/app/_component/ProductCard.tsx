@@ -10,7 +10,7 @@ export default function ProductCard(product: Product) {
     : null;
 
   return (
-    <div className="max-w-50 max-h-80 flex flex-col p-3 border border-grey-dark-3 shadow-dark cursor-pointer">
+    <div className="max-w-50 max-h-80 flex flex-col p-3 border border-grey-dark-3 shadow-dark cursor-pointer bg-grey-light-3">
       <div className="relative w-45 h-45 overflow-hidden rounded-md self-center mb-3">
         {imageUrl ? (
           <Image
