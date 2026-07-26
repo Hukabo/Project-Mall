@@ -1,17 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Product } from "../_lib/types/product";
 import { api } from "../_lib/api/api";
 import { CartItem } from "../_lib/types/cart_item";
+import { UserContext } from "../_lib/context/UserProvider";
+import { useRouter } from "next/navigation";
 
 export default function ProductActions({ product }: { product: Product }) {
+  const { user } = useContext(UserContext);
+  const router = useRouter();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
   const isOutOfStock = product.stock === 0;
 
   async function handleAddToCart() {
+    if (!user) {
+      alert("로그인 후 이용해주세요.");
+      return router.push("/login");
+    }
+
     const res = await api.post<CartItem>("cart", {
       productId: product.id,
       quantity: qty,
