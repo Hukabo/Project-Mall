@@ -1,7 +1,7 @@
 import { Cart } from "./cart";
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
   username: string;
   phone: string;
