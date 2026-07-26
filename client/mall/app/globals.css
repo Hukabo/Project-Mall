@@ -1,8 +1,23 @@
 @import "tailwindcss";
-
+/* ["--bg" as string]: "#F2EFE6",
+        ["--surface" as string]: "#FFFFFF",
+        ["--ink" as string]: "#22281F",
+        ["--ink-soft" as string]: "#5B6357",
+        ["--moss" as string]: "#5B6B4F",
+        ["--ochre" as string]: "#C08829",
+        ["--line" as string]: "#DDD6C4",
+        ["--rust" as string]: "#A6472E", */
 :root {
-  --background: #ffffff;
+  --background: #f2efe6;
   --foreground: #171717;
+
+  --surface: #ffffff;
+  --ink: #22281f;
+  --ink-soft: #5b6357;
+  --moss: #5b6b4f;
+  --ochre: #c08829;
+  --line: #ddd6c4;
+  --rust: #a6472e;
 
   --color-grey-light-1: #faf9f9;
   --color-grey-light-2: #f4f2f2;
@@ -23,6 +38,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-moss: var(--moss);
+  --color-ochre: var(--ochre);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-rust: var(--rust);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
