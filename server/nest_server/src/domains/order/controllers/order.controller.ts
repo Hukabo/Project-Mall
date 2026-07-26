@@ -11,12 +11,7 @@ import {
 import { OrderService } from '../services/order.service';
 import { OrderStatus } from 'src/enums/status.enum';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
-import {
-  type CreateOrderItemDto,
-  createOrderItemSchema,
-} from '../orderItem/dto/create-orderItem.dto';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
-import { User } from 'src/domains/user/entity/user.entity';
 import {
   createOrderSchema,
   type CreateOrderDto,
@@ -32,25 +27,25 @@ export class OrderController {
 
   @Post()
   create(
-    @CurrentUser('id') userId: number,
+    @CurrentUser('id') userId: string,
     @Body(new ValidationPipe(createOrderSchema)) createOrderDto: CreateOrderDto,
   ) {
     return this.orderService.create(userId, createOrderDto);
   }
 
   @Get(':orderId')
-  find(@Param('orderId', ParseIntPipe) orderId: number) {
+  find(@Param('orderId', ParseIntPipe) orderId: string) {
     return this.orderService.find(orderId);
   }
 
-  @Get('user/:userId')
-  findAll(@Param('userId', ParseIntPipe) userId: number) {
+  @Get()
+  findAll(@CurrentUser('id') userId: string) {
     return this.orderService.findAll(userId);
   }
 
   @Patch(':orderId')
   update(
-    @Param('orderId', ParseIntPipe) orderId: number,
+    @Param('orderId', ParseIntPipe) orderId: string,
     @Body() orderStatus: OrderStatus,
   ) {
     return this.orderService.update(orderId, orderStatus);

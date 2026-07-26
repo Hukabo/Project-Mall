@@ -31,7 +31,7 @@ export class CartController {
 
   @Post()
   add(
-    @CurrentUser('id') userId: number,
+    @CurrentUser('id') userId: string,
     @Body(new ValidationPipe(createCartItemSchema))
     createCartItemDto: CreateCartItemDto,
   ): Promise<CartItem> {

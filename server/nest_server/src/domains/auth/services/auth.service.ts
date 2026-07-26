@@ -37,7 +37,7 @@ export class AuthService {
   }
 
   // jwt토큰 payload에서 추출된 유저id로 현재 유저 식별
-  async validateJwtUser(userId: number) {
+  async validateJwtUser(userId: string) {
     const user = await this.userService.findOne(userId);
 
     if (!user) {
@@ -87,7 +87,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async validateRefreshToken(userId: number, refreshToken: string) {
+  async validateRefreshToken(userId: string, refreshToken: string) {
     const user = await this.userService.findOne(userId);
 
     if (!user || !user.hashedRefreshToken) {
@@ -103,7 +103,7 @@ export class AuthService {
     return { id: userId };
   }
 
-  async logOut(userId: number) {
+  async logOut(userId: string) {
     await this.userService.updateHashedRefreshToken(userId, null);
   }
 }
