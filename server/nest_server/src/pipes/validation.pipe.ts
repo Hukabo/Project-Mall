@@ -12,10 +12,8 @@ export class ValidationPipe implements PipeTransform {
 
   transform(value: unknown, metadata: ArgumentMetadata) {
     try {
+      console.log('value = ', value);
       const parsedValue = this.schema.parse(value);
-      // console.log(metadata.data);
-      // console.log(metadata.metatype);
-      // console.log(metadata.type);
       return parsedValue;
     } catch (error: any) {
       throw new BadRequestException(error.issues ?? error);
