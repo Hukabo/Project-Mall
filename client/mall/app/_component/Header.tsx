@@ -13,7 +13,7 @@ export default function Header() {
   const { user } = useContext(UserContext);
 
   return (
-    <header className="py-2.5 px-12 flex justify-between shadow-2xs">
+    <header className="py-3 px-12 flex justify-between shadow-2xs bg-surface">
       <Link href="/" className="inline-block">
         <Image src="/svg/home.svg" alt="Home image" width={40} height={40} />
       </Link>
