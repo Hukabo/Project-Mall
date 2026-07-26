@@ -1,7 +1,5 @@
 import Image from "next/image";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Category } from "../_lib/types/category";
 
 export default function ListItem({ category }: { category: Category }) {
