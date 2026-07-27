@@ -86,9 +86,11 @@ export class CartService {
     }
   }
 
-  async findAll(cartId: number): Promise<CartItem[]> {
+  async findAll(userId: string): Promise<CartItem[]> {
     try {
-      const cart = await this.cartRepository.findOneBy({ id: cartId });
+      const cart = await this.cartRepository.findOneBy({
+        user: { id: userId },
+      });
 
       if (!cart) {
         throw new NotFoundException('the cart is not exists...');
