@@ -5,8 +5,6 @@ import { api } from "../_lib/api/api";
 import { CartItem } from "../_lib/types/cart_item";
 import { UserContext } from "../_lib/context/UserProvider";
 import { useRouter } from "next/navigation";
-import { PaymentMethod } from "../enum/payment.enum";
-import Payment from "../_component/Payment";
 import {
   loadTossPayments,
   ANONYMOUS,
@@ -76,9 +74,7 @@ export default function OrderPage() {
 
     async function loadCart() {
       if (!user) return;
-      const receivedCartItems = await api.get<CartItem[]>(
-        `cart/${user.cart.id}`,
-      );
+      const receivedCartItems = await api.get<CartItem[]>(`cart`);
 
       setCartItems(receivedCartItems);
     }
