@@ -13,9 +13,9 @@ export const shippingSchema = z.object({
   zipcode: z.preprocess((value: unknown) => Number(value), z.number(), {
     required_error: '잘못된 우편번호 입니다.',
   }),
-  address: z.string({ required_error: '배송지가 옮바르지 않습니다.' }),
+  address: z.string({ required_error: '배송지가 올바르지 않습니다.' }),
   addressDetail: z.string({
-    required_error: '상세주소가 옮바르지 않습니다.',
+    required_error: '상세주소가 올바르지 않습니다.',
   }),
   memo: z.string(),
 });
