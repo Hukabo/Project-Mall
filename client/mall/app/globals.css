@@ -1,12 +1,4 @@
 @import "tailwindcss";
-/* ["--bg" as string]: "#F2EFE6",
-        ["--surface" as string]: "#FFFFFF",
-        ["--ink" as string]: "#22281F",
-        ["--ink-soft" as string]: "#5B6357",
-        ["--moss" as string]: "#5B6B4F",
-        ["--ochre" as string]: "#C08829",
-        ["--line" as string]: "#DDD6C4",
-        ["--rust" as string]: "#A6472E", */
 :root {
   --background: #f2efe6;
   --foreground: #171717;
