@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Work_Sans } from "next/font/google";
 import "./globals.css";
 import UserProvider from "./_lib/context/UserProvider";
+import Script from "next/script";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -46,6 +47,10 @@ export default function RootLayout({
     >
       <body>
         <UserProvider>{children}</UserProvider>
+        <Script
+          src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );
