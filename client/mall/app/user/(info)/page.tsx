@@ -12,12 +12,12 @@ export default function UserInfoPage() {
 
   return (
     <>
-      <div className="relative min-h-screen min-w-125">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[-70%] min-w-125 w-[50vw] mx-auto flex flex-col items-center bg-surface">
+      <div className="flex min-h-screen min-w-125 justify-center items-center">
+        <div className="min-w-125 w-[50vw] mx-auto flex flex-col items-center bg-surface rounded-lg shadow border border-gray-50 max-[500px]:h-screen">
           {/* 사용자 이름 및 이메일 */}
-          <div className="w-full shadow border border-gray-50 rounded-lg p-4 px-8 ">
+          <div className="w-full p-4 px-8 ">
             <div className="flex flex-col items-start">
-              <div className="w-14 h-14 rounded-full mb-2 bg-blue-200 text-lg flex justify-center items-center">
+              <div className="w-14 h-14 rounded-full mb-2 bg-rust/80 text-lg flex justify-center items-center">
                 JW
               </div>
               <div className="text-center">
