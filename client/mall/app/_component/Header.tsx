@@ -13,29 +13,29 @@ export default function Header() {
   const { user } = useContext(UserContext);
 
   return (
-    <header className="py-3 px-12 flex justify-between shadow-2xs bg-surface">
+    <header className="py-3 px-12 flex justify-between shadow-2xs bg-surface border-b border-grey-light-4">
       <Link href="/" className="inline-block">
-        <Image src="/svg/home.svg" alt="Home image" width={40} height={40} />
+        <h1 className="text-2xl italic uppercase">Mall</h1>
       </Link>
       <SearchBar />
-      <div className="flex items-center gap-3 font-bold">
+      <div className="flex items-center gap-3 font-medium">
         {user ? (
           <>
             <span className="border-e pr-3">{user.username}님</span>
 
-            <Link href={`/user`} className="border-e pr-3">
+            <Link href={`/user`} className="border-e pr-3 hover:text-moss">
               내정보
             </Link>
 
             <Link
               id="cart"
-              href={`/cart/${user.cart.id}`}
-              className="border-e pr-3"
+              href={`/cart`}
+              className="border-e pr-3 hover:text-moss"
             >
               장바구니
             </Link>
 
-            <Link href="/orders" className="border-e pr-3">
+            <Link href="/orders" className="border-e pr-3 hover:text-moss">
               주문내역
             </Link>
 
@@ -44,18 +44,20 @@ export default function Header() {
                 await logout();
                 window.location.reload();
               }}
-              className="cursor-pointer"
+              className="cursor-pointer hover:text-rust"
             >
               로그아웃
             </button>
           </>
         ) : (
           <>
-            <Link href="/login" className="border-e pr-3">
+            <Link href="/login" className="border-e pr-3 hover:text-moss">
               로그인
             </Link>
 
-            <Link href="/join">회원가입</Link>
+            <Link href="/join" className="hover:text-moss">
+              회원가입
+            </Link>
           </>
         )}
       </div>

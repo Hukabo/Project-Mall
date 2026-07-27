@@ -37,11 +37,11 @@ export default function ProductActions({ product }: { product: Product }) {
       {/* 수량 선택 */}
       <div className="flex items-center gap-3">
         <span className="text-sm text-gray-500">수량</span>
-        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-surface">
           <button
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             disabled={qty <= 1}
-            className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 disabled:opacity-30 transition-colors"
+            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 disabled:opacity-30 transition-colors"
             aria-label="수량 감소"
           >
             −
@@ -52,7 +52,7 @@ export default function ProductActions({ product }: { product: Product }) {
           <button
             onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
             disabled={qty >= product.stock}
-            className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 disabled:opacity-30 transition-colors"
+            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 disabled:opacity-30 transition-colors"
             aria-label="수량 증가"
           >
             +
@@ -78,7 +78,7 @@ export default function ProductActions({ product }: { product: Product }) {
         </button>
         <button
           disabled={isOutOfStock}
-          className="flex-1 h-11 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex-1 h-11 rounded-lg text-sm font-medium bg-ink text-white hover:bg-ink/80 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {isOutOfStock ? "품절" : "바로 구매"}
         </button>

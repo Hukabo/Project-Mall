@@ -10,7 +10,7 @@ export default function ProductCard(product: Product) {
     : null;
 
   return (
-    <div className="max-w-50 max-h-80 flex flex-col p-3 border border-grey-dark-3 shadow-dark cursor-pointer bg-grey-light-3">
+    <div className="max-w-50 max-h-80 flex flex-col p-3 border border-grey-dark-3 shadow-dark cursor-pointer bg-grey-light-3 transition-all duration-300 hover:-translate-y-2.5">
       <div className="relative w-45 h-45 overflow-hidden rounded-md self-center mb-3">
         {imageUrl ? (
           <Image
@@ -30,7 +30,9 @@ export default function ProductCard(product: Product) {
 
       <p className="truncate font-light">{product.name}</p>
       <p>{product.price.toLocaleString()}원</p>
-      <p>평점: ★★★★★</p>
+      <p>
+        평점: <span className="text-ochre">★★★★★</span>
+      </p>
     </div>
   );
 }

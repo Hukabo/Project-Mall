@@ -7,7 +7,7 @@ export default function Button({
 }) {
   return (
     <button
-      className={`block px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-md text-white shadow ${className}`}
+      className={`block px-3 py-2 bg-ink hover:bg-ink/80 rounded-md text-white shadow ${className}`}
     >
       {text}
     </button>

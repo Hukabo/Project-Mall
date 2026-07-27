@@ -7,15 +7,15 @@ export default function ListItem({ category }: { category: Category }) {
     <>
       <li className="relative flex items-center group">
         <Image
-          src="/svg/cheveron-right.svg"
+          src="/svg/chevron-thin-right.svg"
           alt="cheveron-right image"
-          width={25}
-          height={25}
-          className="h-6 w-auto"
+          width={10}
+          height={10}
+          className="h-4 w-auto mr-1"
         />
         <a
           href={`/?search=${category.name}`}
-          className="block text-xl text-grey-dark-1 transition-all duration-200 group-hover:translate-x-2"
+          className="block text-xl text-grey-dark-1 transition-all duration-200 group-hover:translate-x-2 hover:text-rust font-light"
         >
           {category.name}
         </a>
