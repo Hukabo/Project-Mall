@@ -38,9 +38,9 @@ export class CartController {
     return this.cartService.create(userId, createCartItemDto);
   }
 
-  @Get(':cartId')
-  findAll(@Param('cartId', ParseIntPipe) id: number): Promise<CartItem[]> {
-    return this.cartService.findAll(id);
+  @Get()
+  findAll(@CurrentUser('id') userId: string): Promise<CartItem[]> {
+    return this.cartService.findAll(userId);
   }
 
   @Patch(':cartItemId')
