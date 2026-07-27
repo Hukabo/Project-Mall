@@ -52,7 +52,7 @@ export default function ProductList() {
       next={fetchMore}
       hasMore={localHasNext}
       loader={<Loading />}
-      endMessage={<p style={{ textAlign: "center" }}>All items loaded.</p>}
+      // endMessage={<p style={{ textAlign: "center" }}>All items loaded.</p>}
     >
       {products.map((product, i) => (
         <Link key={`index-${i}`} href={`/product/${product.id}`}>
