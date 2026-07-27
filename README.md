@@ -16,21 +16,19 @@
 
 ---
 
-## 🛠️ 기술 스택
+## 🛠️ 사용 기술 스택
 
 ### Frontend
 - React
 - Next.js
 - TypeScript
 - Tailwind CSS
-- Axios
-
 
 ### Backend
-- Node.js
-- Express
+- Nest.js
+- TypeORM
 - PostgreSQL
-- JWT
+- JWT Athentication(Cookie 방식)
 
 ### Devops & Tools
 - AWS EC2 / S3
@@ -62,7 +60,6 @@
 
 ### 주문
 - 주문 생성
-- 주문 수정
 - 주문 조회
 - 주문 취소
 
