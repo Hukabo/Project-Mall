@@ -19,26 +19,23 @@ export default async function ProductPage({ params }: Props) {
   const isLowStock = product.stock > 0 && product.stock <= 10;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* 브레드크럼 */}
         <nav className="flex items-center gap-1.5 text-xs text-gray-400 mb-6">
-          <Link href="/" className="hover:text-blue-500 transition-colors">
+          <Link href="/" className="hover:text-rust transition-colors">
             홈
           </Link>
           <span>›</span>
-          <Link
-            href="/products"
-            className="hover:text-blue-500 transition-colors"
-          >
+          <Link href="/" className="hover:text-rust transition-colors">
             상품
           </Link>
           <span>›</span>
           {product.category && (
             <>
               <Link
-                href={`/products?category=${product.category.id}`}
-                className="hover:text-blue-500 transition-colors"
+                href={`/?search=${product.category.name}`}
+                className="hover:text-rust transition-colors"
               >
                 {product.category.name}
               </Link>
@@ -133,7 +130,7 @@ export default async function ProductPage({ params }: Props) {
                 key={tab}
                 className={`pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
                   i === 0
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-rust text-rust"
                     : "border-transparent text-gray-400 hover:text-gray-600"
                 }`}
               >
