@@ -1,13 +1,12 @@
 "use client";
 
-import { useContext, useEffect, useMemo, useState } from "react";
-import { api } from "../../_lib/api/api";
-import { UserContext } from "../../_lib/context/UserProvider";
-import { User } from "../../_lib/types/user";
-import { Props } from "@/app/_lib/types/props";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "../_lib/api/api";
+
 import { CartItem } from "@/app/_lib/types/cart_item";
 import { useParams, useRouter } from "next/navigation";
 import { won } from "@/app/_lib/util/common";
+import Link from "next/link";
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -15,12 +14,10 @@ export default function CartPage() {
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState("");
   const router = useRouter();
-  const params = useParams();
-  const cartId = params.id;
 
   useEffect(() => {
     async function loadCartItems() {
-      const cartItems = await api.get<CartItem[]>(`cart/${cartId}`);
+      const cartItems = await api.get<CartItem[]>(`cart`);
 
       setItems(cartItems);
     }
@@ -84,9 +81,12 @@ export default function CartPage() {
         {/* 헤더 */}
         <header className="mb-10 flex items-end justify-between border-b pb-6 border-line">
           <div>
-            <p className="mb-1 font-mono text-xs tracking-widest uppercase text-moss">
+            <Link
+              href={"/"}
+              className="mb-1 font-mono text-xs tracking-widest uppercase text-moss"
+            >
               Mall
-            </p>
+            </Link>
             <h1 className="font-display text-4xl md:text-5xl">장바구니</h1>
           </div>
           <p className="hidden font-mono text-xs md:block text-ink-soft">
