@@ -1,4 +1,5 @@
 import { Product } from 'src/domains/product/entity/product.entity';
+import { TimeStamp } from 'src/embedded_columns/time_stamp';
 import {
   Column,
   CreateDateColumn,
@@ -18,12 +19,6 @@ export class Category {
   @Column()
   name!: string;
 
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
-
   @ManyToOne(() => Category, (category) => category.children, {
     nullable: true,
     onDelete: 'SET NULL',
@@ -36,4 +31,7 @@ export class Category {
 
   @OneToMany(() => Product, (product) => product.category)
   products!: Product[];
+
+  @Column(() => TimeStamp)
+  timeStamp!: TimeStamp;
 }
