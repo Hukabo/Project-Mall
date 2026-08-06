@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ProductCard from "./ProductCard";
-import { PageResponse, Product } from "../_lib/types/product";
+import { PageResponse, Product } from "../_lib/types/product/product";
 
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "./Loading";
@@ -16,7 +16,7 @@ export default function ProductList() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const page = useRef<number>(1);
-  const [localHasNext, setHasNext] = useState<boolean>(true);
+  const [hasNext, setHasNext] = useState<boolean>(true);
 
   const loadProducts = useCallback(
     async (pageToLoad: number, search: string, append: boolean) => {
@@ -27,7 +27,6 @@ export default function ProductList() {
           search,
         },
       });
-
       setProducts((prev) => (append ? [...prev, ...products] : products));
       page.current = pageToLoad + 1;
       setHasNext(hasNext);
@@ -37,10 +36,11 @@ export default function ProductList() {
 
   useEffect(() => {
     loadProducts(1, search, false);
+    console.log("products = ", products);
   }, [search]);
 
   async function fetchMore() {
-    if (!localHasNext) return;
+    if (!hasNext) return;
 
     loadProducts(page.current, search, true);
   }
@@ -50,13 +50,15 @@ export default function ProductList() {
       className="flex-1 p-7 grid grid-cols-(--grid-cols) grid-rows-(--grid-rows) gap-8"
       dataLength={products.length}
       next={fetchMore}
-      hasMore={localHasNext}
+      hasMore={hasNext}
       loader={<Loading />}
       // endMessage={<p style={{ textAlign: "center" }}>All items loaded.</p>}
     >
-      {products.map((product, i) => (
+      {[
+        ...new Map(products.map((product) => [product.id, product])).values(),
+      ].map((product, i) => (
         <Link key={`index-${i}`} href={`/product/${product.id}`}>
-          <ProductCard key={product.id} {...product} />
+          <ProductCard {...product} />
         </Link>
       ))}
     </InfiniteScroll>
