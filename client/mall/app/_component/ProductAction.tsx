@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useState } from "react";
-import { Product } from "../_lib/types/product";
+import { Product } from "../_lib/types/product/product";
 import { api } from "../_lib/api/api";
 import { CartItem } from "../_lib/types/cart_item";
 import { UserContext } from "../_lib/context/UserProvider";
