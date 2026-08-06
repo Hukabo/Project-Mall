@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { api } from "../_lib/api/api";
-import { Product } from "../_lib/types/product";
+import { Product } from "../_lib/types/product/product";
 import { SyntheticEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import MagnifyingGlass from "./MagnifyingGlass";
