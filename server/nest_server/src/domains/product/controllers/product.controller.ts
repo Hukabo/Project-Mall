@@ -39,6 +39,8 @@ import { cwd } from 'process';
 import { existsSync } from 'fs';
 import type { Response } from 'express';
 import { Public } from 'src/decorators/public.decorator';
+import { Image } from 'src/domains/image/entity/image.entity';
+import { ProductSpec } from '../entity/productSpec.entity';
 
 @Controller('product')
 export class ProductController {
@@ -49,7 +51,7 @@ export class ProductController {
 
   @Post()
   @Roles([Role.ADMIN])
-  @UseInterceptors(FilesInterceptor('images', 3))
+  @UseInterceptors(FilesInterceptor('images'))
   async crete(
     @Body(new ValidationPipe(createProductSchema))
     createProductDto: CreateProductDto,
@@ -61,7 +63,9 @@ export class ProductController {
 
   @Get(':id')
   @Public()
-  async find(@Param('id', ParseIntPipe) id: number): Promise<Product | null> {
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Product | null> {
     return this.productService.findById(id);
   }
 
@@ -75,20 +79,10 @@ export class ProductController {
     return await this.productService.findPage(+page, +limit, search?.trim());
   }
 
-  @Get('images/:filename')
+  @Get('img/:productId')
   @Public()
-  async getImage(@Param('filename') filename, @Res() res: Response) {
-    const filePath = join(cwd(), 'asset', 'product_images', filename);
-
-    if (!existsSync(filePath))
-      throw new NotFoundException('The path is wrong..');
-    return res.sendFile(filePath);
-  }
-
-  @Get()
-  @Public()
-  async findAll(): Promise<Product[]> {
-    return this.productService.findAll();
+  async getImage(@Param('productId') productId): Promise<Image[]> {
+    return await this.productService.findImages(productId);
   }
 
   @Patch(':id')
@@ -98,7 +92,7 @@ export class ProductController {
     @Body(new ValidationPipe(updateProductSchema))
     updateProductDto: UpdateProductDto,
   ) {
-    return this.productService.update(id, updateProductDto);
+    // return this.productService.update(id, updateProductDto);
   }
 
   @Delete(':id')

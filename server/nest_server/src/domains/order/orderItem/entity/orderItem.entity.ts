@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Order } from '../../entity/order.entity';
 import { Product } from 'src/domains/product/entity/product.entity';
+import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
 @Entity('order_item')
 export class OrderItem {
@@ -30,7 +31,7 @@ export class OrderItem {
   @JoinColumn()
   order!: Order;
 
-  @ManyToOne(() => Product, (product) => product.orderItems)
+  @ManyToOne(() => ProductSpec, (productSpec) => productSpec.orderItems)
   @JoinColumn()
-  product!: Product;
+  productSpec!: ProductSpec;
 }

@@ -8,6 +8,7 @@ import { User } from 'src/domains/user/entity/user.entity';
 import { InternalServerError } from 'src/errors/internal-server.error';
 import { Repository } from 'typeorm';
 import { Cart } from '../entity/cart.entity';
+import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
 @Injectable()
 export class CartService {
@@ -21,8 +22,8 @@ export class CartService {
     @InjectRepository(CartItem)
     private readonly cartItemRepository: Repository<CartItem>,
 
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    @InjectRepository(ProductSpec)
+    private readonly productSpecRepository: Repository<ProductSpec>,
   ) {}
 
   async create(
@@ -35,7 +36,7 @@ export class CartService {
         relations: {
           cart: {
             cartItems: {
-              product: true,
+              productSpec: true,
             },
           },
         },
@@ -48,15 +49,17 @@ export class CartService {
 
       const { productId, quantity } = createCartItemDto;
 
-      const product = await this.productRepository.findOneBy({ id: productId });
+      const productSpec = await this.productSpecRepository.findOneBy({
+        id: productId,
+      });
 
-      if (!product) {
+      if (!productSpec) {
         throw new NotFoundException('해당 상품이 없습니다.');
       }
 
       // 해당 상품이 이미 장바구니에 있다면 수량 증가
       const existingItem = cart.cartItems.find(
-        (item) => item.product.id === productId,
+        (item) => item.productSpec.id === productId,
       );
 
       if (existingItem) {
@@ -68,7 +71,7 @@ export class CartService {
       const cartItem = this.cartItemRepository.create({
         quantity,
         cart,
-        product,
+        productSpec,
       });
 
       return await this.cartItemRepository.save(cartItem);
@@ -99,17 +102,24 @@ export class CartService {
       return await this.cartItemRepository.find({
         where: { cart },
         relations: {
-          product: true,
+          productSpec: {
+            productView: {
+              product: true,
+            },
+          },
         },
         select: {
           id: true,
           quantity: true,
-          product: {
+          productSpec: {
             id: true,
-            name: true,
-            price: true,
-            description: true,
-            stock: true,
+            size: true,
+            productView: {
+              color: true,
+              product: {
+                name: true,
+              },
+            },
           },
         },
       });
@@ -141,15 +151,11 @@ export class CartService {
         where: {
           id: cartItemId,
         },
-        relations: {
-          product: true,
-        },
         select: {
           id: true,
           quantity: true,
-          product: {
-            name: true,
-            description: true,
+          productSpec: {
+            size: true,
           },
         },
       });

@@ -1,26 +1,236 @@
 "use client";
 
-import { useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { createProduct } from "../../_lib/api/product";
 import Button from "@/app/_component/Button";
+import { api } from "@/app/_lib/api/api";
+import { Category } from "@/app/_lib/types/category";
+import ImageInput from "@/app/_component/ImageInput";
+import { CreateProductForm } from "@/app/_lib/types/product/create_product_form";
+import { SizeStock } from "@/app/_lib/types/product/size_stock";
+import ProductInputField from "@/app/_component/ProductInputField";
+import { Variant } from "@/app/_lib/types/product/variant";
+import ProductVariant from "@/app/_component/ProductVariant";
+import AddVariantBtn from "@/app/_component/AddVariantBtn";
+
+const SIZE_LIST = ["S", "M", "L", "XL", "2XL", "FREE"];
+
+function createEmptySizeStocks() {
+  const emptySizeStocks: SizeStock[] = SIZE_LIST.map((size) => {
+    return {
+      size,
+      stock: 0,
+    };
+  });
+
+  return emptySizeStocks;
+}
+
+function createEmptyVariant() {
+  return {
+    id: crypto.randomUUID(),
+    color: "",
+    images: [],
+    sizeStocks: createEmptySizeStocks(),
+  } as Variant;
+}
+
+const INITIAL_FORM = {
+  name: "",
+  price: 0,
+  description: "",
+  variants: [createEmptyVariant()],
+  categoryId: "",
+};
+
+export interface VariantImage {
+  file: File;
+  previewUrl: string;
+}
 
 export default function ProductRegisterPage() {
-  const initialForm = {
-    name: "",
-    price: "",
-    description: "",
-    stock: "",
-    images: [] as File[],
-    categoryId: "",
-  };
+  const [form, setForm] = useState<CreateProductForm>(INITIAL_FORM);
 
-  const [form, setForm] = useState(initialForm);
+  const [categories, setCategories] = useState<Category[] | null>(null);
+  const [parentId, setParentId] = useState<string | null>(null);
+  const [children, setChildren] = useState<Category[] | null>(null);
+
+  useEffect(() => {
+    console.log("form = ", form);
+  }, [form]);
+
+  // 상위 카테고리 호출
+  useEffect(() => {
+    async function loadCategories() {
+      const categories = await api.get<Category[]>("category/parent");
+      setCategories(categories);
+    }
+    loadCategories();
+  }, []);
+
+  // 상위 카테고리 선택시 하위 카테고리 호출
+  useEffect(() => {
+    async function loadChildrenCategories() {
+      if (!parentId) return;
+
+      const res = await api.get<Category>(`category/${parentId}`);
+
+      setChildren(res.children);
+    }
+
+    loadChildrenCategories();
+  }, [parentId]);
+
+  function changeColor(index: number, color: string) {
+    setForm((prev) => {
+      const variants = prev.variants;
+
+      variants[index] = { ...variants[index], color };
+
+      return { ...prev, variants };
+    });
+  }
+
+  function addImage(variantIdx: number, files: File[]) {
+    console.log("files = ", files);
+
+    setForm((prev) => {
+      const variants = [...prev.variants];
+      const variant = { ...variants[variantIdx] };
+
+      // 각 Variant는 이미지 최대 3장까지
+      if (
+        variant.images.length >= 3 ||
+        variant.images.length + files.length > 3
+      ) {
+        alert("이미지는 최대 3장까지 가능합니다.");
+        return prev;
+      }
+
+      const newVariantImages: VariantImage[] = files.map((file) => {
+        return {
+          file,
+          previewUrl: URL.createObjectURL(file),
+        };
+      });
+
+      variant.images = [...variant.images, ...newVariantImages];
+      variants[variantIdx] = variant;
+
+      return {
+        ...prev,
+        variants,
+      };
+    });
+  }
+
+  function removeImage(variantIdx: number, imageIdx: number) {
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, i) =>
+        i === variantIdx
+          ? {
+              ...v,
+              images: v.images.filter((image, i) => {
+                if (imageIdx === i) URL.revokeObjectURL(image.previewUrl);
+                return i !== imageIdx;
+              }),
+            }
+          : v,
+      ),
+    }));
+  }
+
+  function handleSizeStock(
+    variantIdx: number,
+    size: string,
+    stock: number | string,
+  ) {
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, i) =>
+        i !== variantIdx
+          ? v
+          : {
+              ...v,
+              sizeStocks: v.sizeStocks.map((s) =>
+                s.size !== size ? s : { ...s, stock },
+              ),
+            },
+      ),
+    }));
+  }
+
+  function addVariant() {
+    setForm((prev) => ({
+      ...prev,
+      variants: [...prev.variants, createEmptyVariant()],
+    }));
+  }
+
+  function removeVariant(variantIdx: number) {
+    console.log("id = ", variantIdx);
+    if (form.variants[variantIdx].images.length >= 1) {
+      // Variant안에 이미지들의 ObjectURL 제거
+      form.variants.forEach((v, i) => {
+        if (variantIdx === i) {
+          v.images.forEach((image) => {
+            URL.revokeObjectURL(image.previewUrl);
+          });
+        }
+      });
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((v, i) => variantIdx !== i),
+    }));
+  }
+
+  async function handleSubmit(e: SyntheticEvent, form: CreateProductForm) {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+    const entries = Object.entries(form) as [
+      keyof CreateProductForm,
+      unknown,
+    ][];
+
+    entries.forEach(([key, value]) => {
+      if (key === "variants") {
+        const variants = value as Variant[];
+
+        // Variant타입에서 id 제외 및 이미지만 따로 수렴
+        const editedVariants = variants.map((v, index) => {
+          // 이미지 파일과 해당 Variant 식별
+          v.images.forEach((img) => {
+            formData.append("images", img.file);
+            formData.append("imagesInfo", String(index));
+          });
+
+          return {
+            color: v.color,
+            sizeStocks: v.sizeStocks,
+          };
+        });
+
+        formData.append(key, JSON.stringify(editedVariants));
+      } else {
+        // name, desc, price, categoryId
+        formData.append(key, String(value));
+      }
+    });
+
+    const res = await api.post("product", formData);
+    console.log(res);
+  }
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-[80vw] mx-auto bg-gray-50">
-        <div className="flex flex-col gap-8">
-          <div className="px-12 py-8">
+    <div className="min-h-screen py-9">
+      <div className="max-w-[60vw] mx-auto bg-white border border-line shadow rounded-sm text-gray-700">
+        <div className="flex flex-col">
+          <div className="px-12 py-4  border-b border-line border-dashed">
             <h1 className="text-2xl">상품 등록</h1>
             <span className="text-gray-500 text-sm">
               각 항목에 알맞게 입력해주세요.
@@ -28,178 +238,139 @@ export default function ProductRegisterPage() {
           </div>
 
           <div className="px-16 py-8 ">
-            <form onSubmit={async (e) => await createProduct(e, form)}>
-              <label
-                htmlFor="input_image"
-                className="block relative w-[80%] mx-auto mb-8 h-34 bg-white border border-dashed border-gray-300 shadow rounded-sm"
-              >
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                  <span className=" text-2xl">이미지 등록</span>
-                  <p>
-                    <span className="text-red-600">*</span> 확장자 .png, .jpeg,
-                    .jpg 10MB 이하만 가능
-                  </p>
+            <h2 className="text-xl font-mono">
+              <span className="text-line">01 </span>기본정보
+            </h2>
+            <form
+              onSubmit={async (e) => {
+                await handleSubmit(e, form);
+              }}
+            >
+              <div className="p-4 flex flex-col gap-6">
+                <div className="flex justify-between gap-5">
+                  {/* product name feild */}
+                  <ProductInputField
+                    form={form}
+                    setForm={setForm}
+                    id={"name"}
+                    text={"상품명"}
+                    subText={"상품명을 입력해주세요."}
+                    placeholder={"티니핑"}
+                    required={true}
+                  />
+
+                  {/* product price field */}
+                  <ProductInputField
+                    form={form}
+                    setForm={setForm}
+                    id={"price"}
+                    type={"number"}
+                    text={"상품 가격"}
+                    subText={"숫자만 입력해주세요(단위 :원)."}
+                    placeholder={"13900"}
+                    required={true}
+                  />
                 </div>
-              </label>
 
-              <input
-                id="input_image"
-                type="file"
-                className="hidden p-1"
-                accept="image/png, image/jpeg, image/jpg"
-                multiple
-                onChange={(e) => {
-                  if (!e.target.files) return;
+                {/* description */}
+                <ProductInputField
+                  form={form}
+                  setForm={setForm}
+                  id={"description"}
+                  text={"상품 설명"}
+                  subText={"300자 이내로 적어주세요."}
+                  placeholder={"상품의 특징, 원단, 세탁시 주의사항 등"}
+                />
 
-                  if (form.images.length >= 3) {
-                    alert("이미지 수량이 최대치입니다.");
-                    return;
-                  } else if (e.target.files.length > 3) {
-                    alert("최대 3장의 이미지까지 가능합니다.");
-                    return;
-                  }
-
-                  const inputImages = e.target.files ?? [];
-                  setForm((prev) => ({
-                    ...prev,
-                    images: [...prev.images, ...inputImages],
-                  }));
-                }}
-              />
-
-              {/* 이미지 박스 */}
-              <p className="text-center text-gray-500">
-                이미지를 등록하면 표시됩니다.
-              </p>
-              <div
-                id="image-container"
-                className="p-4 w-1/2 mx-auto flex gap-4 justify-around"
-              >
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="w-[200px] h-[100px] rounded-sm border border-dashed border-gray-400 overflow-hidden"
-                  >
-                    {form.images[index] ? (
-                      <img
-                        src={URL.createObjectURL(form.images[index])}
-                        alt={`preview-${index}`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        이미지{index + 1}
+                {/* categories */}
+                <div className="flex gap-5">
+                  <div className="flex flex-col gap-2 flex-1">
+                    <div className="px-4 py-3 border border-line rounded-md shadow flex-1 flex flex-col justify-center">
+                      <label htmlFor="categories" className="">
+                        상위 카테고리<span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        name="categories"
+                        id="categories"
+                        className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-line"
+                        onChange={(e) => setParentId(e.target.value)}
+                      >
+                        <option value="">상위 카테고리를 골라주세요.</option>
+                        {categories?.map((parent) => (
+                          <option key={parent.id} value={parent.id}>
+                            {parent.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {children && (
+                      <div className="px-4 py-3 border border-line rounded-md shadow flex-1">
+                        <label htmlFor="children" className="text-[1.3rem]">
+                          하위 카테고리<span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          name="children"
+                          id="children"
+                          className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-line"
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              categoryId: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="">하위 카테고리를 골라주세요.</option>
+                          {children.map((child) => (
+                            <option key={child.id} value={child.id}>
+                              {child.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-
-              <div className="p-8 grid grid-cols-(--grid-cols-2) gap-6">
-                {/* product name feild */}
-
-                <div className="px-8 py-6 border border-gray-300 rounded-md shadow">
-                  <label htmlFor="name" className="text-[1.3rem]">
-                    상품 이름<span className="text-red-500">*</span>
-                    <p className="text-sm text-gray-500">
-                      20자 이내로 적어주세요.
-                    </p>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    minLength={1}
-                    maxLength={20}
-                    className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-gray-300"
-                    placeholder="예: 티니핑"
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
-                </div>
-
-                {/* product price field */}
-                <div className="px-8 py-6 border border-gray-300 rounded-md shadow">
-                  <label htmlFor="price" className="text-[1.3rem]">
-                    상품 가격<span className="text-red-500">*</span>
-                    <p className="text-sm text-gray-500">
-                      숫자만 입력해주세요(단위 :원).
-                    </p>
-                  </label>
-                  <input
-                    type="text"
-                    id="price"
-                    name="price"
-                    className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-gray-300"
-                    placeholder="예: 13900"
-                    onChange={(e) =>
-                      setForm({ ...form, price: e.target.value })
-                    }
-                  />
-                </div>
-                {/* description */}
-                <div className="px-8 py-6 border border-gray-300 rounded-md shadow">
-                  <label htmlFor="description" className="text-[1.3rem]">
-                    상품 설명
-                    <p className="text-sm text-gray-500">
-                      300자 이내로 적어주세요.
-                    </p>
-                  </label>
-                  <input
-                    type="text"
-                    id="description"
-                    name="description"
-                    className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-gray-300"
-                    placeholder="예: 이 상품으로 말할 것 같으면 어쩌구..."
-                    onChange={(e) =>
-                      setForm({ ...form, description: e.target.value })
-                    }
-                  />
-                </div>
-
-                {/* stock  */}
-                <div className="px-8 py-6 border border-gray-300 rounded-md shadow">
-                  <label htmlFor="description" className="text-[1.3rem]">
-                    상품 수량
-                    <p className="text-sm text-gray-500">
-                      숫자만 입력해주세요.
-                    </p>
-                  </label>
-                  <input
-                    type="text"
-                    id="stock"
-                    name="stock"
-                    className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-gray-300"
-                    placeholder="예: 9999"
-                    onChange={(e) =>
-                      setForm({ ...form, stock: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="px-8 py-6 border border-gray-300 rounded-md shadow">
-                  <label htmlFor="category" className="text-[1.3rem]">
-                    카테고리<span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="category"
-                    id="category"
-                    className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-gray-300"
-                    onChange={(e) =>
-                      setForm({ ...form, categoryId: e.target.value })
-                    }
-                  >
-                    <option value="">해당 카테고리를 골라주세요.</option>
-                    <option value="1">모자</option>
-                    <option value="2">상의</option>
-                    <option value="3">하의</option>
-                    <option value="4">아우터</option>
-                  </select>
                 </div>
               </div>
 
+              {/* variants */}
+              <h2 className="text-xl font-mono my-4">
+                <span className="text-line">02 </span>색상별 이미지&amp;재고
+                <div className="text-sm pl-8">
+                  <p>
+                    <span className="text-red-500 text-[1rem] pr-0.5">!</span>
+                    이미지 확장자는{" "}
+                    <span className="text-rust text-[1rem] pr-0.5">
+                      png,jpeg,jpg
+                    </span>
+                    만 가능하며{" "}
+                    <span className="text-rust text-[1rem] pr-0.5">10mb</span>
+                    이하여야합니다
+                  </p>
+                  <p>
+                    상품이름_컬러_숫자 형태로 업로드 해주세요. (예:
+                    <span className="text-rust text-[1rem] px-0.5">
+                      오버핏반팔_white_01
+                    </span>
+                    )
+                  </p>
+                </div>
+              </h2>
+              {form.variants.map((variant, index) => (
+                <div key={variant.id} className="not-last:mb-4">
+                  <ProductVariant
+                    variantIdx={index}
+                    variant={variant}
+                    changeColor={changeColor}
+                    addImage={addImage}
+                    removeImage={removeImage}
+                    handleSizeStock={handleSizeStock}
+                    removeVariant={removeVariant}
+                  />
+                </div>
+              ))}
+              <AddVariantBtn addVariant={addVariant} />
               {/* button container */}
               <div className="flex mt-5 py-5 px-10 gap-4 justify-end align-center">
-                <Button text="임시 저장" />
                 <Button text="등록 하기" />
               </div>
             </form>

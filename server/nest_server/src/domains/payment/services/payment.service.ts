@@ -33,20 +33,28 @@ export class PaymentService {
     return this.dataSource.transaction(async (manager) => {
       const cartItems = await manager.find(CartItem, {
         where: { id: In(cartItemIds), cart: { user: { id: userId } } },
-        relations: { product: true, cart: { user: true } },
+        relations: {
+          productSpec: {
+            productView: {
+              product: true,
+            },
+          },
+          cart: { user: true },
+        },
       });
       if (cartItems.length !== cartItemIds.length) {
         throw new BadRequestException('유효하지 않은 장바구니 상품입니다.');
       }
 
       const amount = cartItems.reduce(
-        (sum, item) => sum + item.product.price * item.quantity,
+        (sum, item) =>
+          sum + item.productSpec.productView.product.price * item.quantity,
         0,
       );
       const orderName =
         cartItems.length === 1
-          ? cartItems[0].product.name
-          : `${cartItems[0].product.name} 외 ${cartItems.length - 1}건`;
+          ? cartItems[0].productSpec.productView.product.name
+          : `${cartItems[0].productSpec.productView.product.name} 외 ${cartItems.length - 1}건`;
 
       const createdShipping = await manager.save(Shipping, shipping);
       const order = await manager.save(

@@ -1,6 +1,4 @@
-import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { Category } from 'src/domains/category/entity/category.entity';
-import { OrderItem } from 'src/domains/order/orderItem/entity/orderItem.entity';
 import {
   Column,
   CreateDateColumn,
@@ -11,6 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ProductView } from './productView.entity';
+import { TimeStamp } from 'src/embedded_columns/time_stamp';
 
 @Entity('product')
 export class Product {
@@ -26,31 +26,22 @@ export class Product {
   @Column()
   price!: number;
 
-  @Column()
-  stock!: number;
-
-  @Column('varchar', {
-    array: true,
+  @Column({
     nullable: true,
   })
-  images!: string[];
+  discount!: number;
 
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Column()
+  thumbnail!: string;
 
   @ManyToOne(() => Category, (category) => category.products, {
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
   })
   category!: Category;
 
-  @OneToMany(() => CartItem, (cartItem) => cartItem.product, {
-    cascade: true,
-  })
-  cartItems!: CartItem[];
+  @OneToMany(() => ProductView, (productView) => productView.product)
+  productViews!: ProductView[]; // 상품의 이미지와 색상을 담당하는 Entity
 
-  @OneToMany(() => OrderItem, (item) => item.product)
-  orderItems!: OrderItem[];
+  @Column(() => TimeStamp)
+  timeStamp!: TimeStamp;
 }

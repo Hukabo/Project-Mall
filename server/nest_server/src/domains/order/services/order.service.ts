@@ -36,7 +36,11 @@ export class OrderService {
           id: In(cartItemIds),
         },
         relations: {
-          product: true,
+          productSpec: {
+            productView: {
+              product: true,
+            },
+          },
         },
       });
 
@@ -45,7 +49,7 @@ export class OrderService {
 
       // 재고 확인
       for (const item of cartItems) {
-        if (item.product.stock < item.quantity)
+        if (item.productSpec.stock < item.quantity)
           throw new BadRequestException('상품 수량이 부족합니다..');
       }
 
@@ -66,9 +70,9 @@ export class OrderService {
       // 주문 생성
       const orderItems = cartItems.map((item) => {
         return manager.create(OrderItem, {
-          name: item.product.name,
-          price: item.product.price,
-          description: item.product.description,
+          name: item.productSpec.productView.product.name,
+          price: item.productSpec.productView.product.price,
+          description: item.productSpec.productView.product.description,
           quantity: item.quantity,
           order,
         });
@@ -84,7 +88,7 @@ export class OrderService {
         await manager.decrement(
           Product,
           {
-            id: item.product.id,
+            id: item.productSpec.productView.product.id,
           },
           'stock',
           item.quantity,
