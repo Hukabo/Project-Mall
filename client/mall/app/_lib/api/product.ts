@@ -1,5 +1,5 @@
 import { SyntheticEvent } from "react";
-import { Product } from "../types/product";
+import { Product } from "../types/product/product";
 
 export async function createProduct(e: SyntheticEvent, form: any) {
   e.preventDefault();
@@ -22,8 +22,17 @@ export async function createProduct(e: SyntheticEvent, form: any) {
     credentials: "include",
     body: formData,
   })
-    .then((res) => res.json())
-    .then((data) => console.log("data = ", data))
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("상품등록에 실패하였습니다.");
+      }
+      return res.json();
+    })
+    .then((data) => {
+      console.log("data = ", data);
+      alert("상품이 등록되었습니다.");
+      return data;
+    })
     .catch((err) => console.error(err));
 }
 
