@@ -33,7 +33,7 @@ export class AuthService {
       throw new UnauthorizedException('not correct password');
     }
 
-    return { id: user.id, roles: user.roles };
+    return { id: user.id, username: user.username, roles: user.roles };
   }
 
   // jwt토큰 payload에서 추출된 유저id로 현재 유저 식별
