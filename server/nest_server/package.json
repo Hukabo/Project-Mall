@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed:product": "ts-node -r tsconfig-paths/register src/seed/product.seed.ts"
+    "seed:product": "ts-node -r tsconfig-paths/register src/seed/product/product.seed.ts",
+    "openai:generate": "ts-node -r tsconfig-paths/register src/seed/openai/generate_product/generateProduct.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -32,9 +33,11 @@
     "@nestjs/typeorm": "^11.0.0",
     "argon2": "^0.44.0",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.3.1",
     "multer": "^2.2.0",
+    "openai": "^7.0.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
