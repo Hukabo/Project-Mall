@@ -37,7 +37,7 @@ export class AuthController {
 
     this.setTokensToCookie(res, accessToken, refreshToken);
 
-    return { message: 'login success' };
+    return { message: 'login success', username: user.username };
   }
 
   @UseGuards(RefreshAuthGuard)
