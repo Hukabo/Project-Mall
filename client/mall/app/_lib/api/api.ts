@@ -55,6 +55,7 @@ async function request<T = unknown>(
 ): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
+  const isFormData = body instanceof FormData;
 
   try {
     const res = await fetch(buildUrl(path, params), {
@@ -62,10 +63,15 @@ async function request<T = unknown>(
       credentials: "include",
       signal: controller.signal,
       headers: {
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...headers,
       },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body:
+        body !== undefined
+          ? isFormData
+            ? body
+            : JSON.stringify(body)
+          : undefined,
     });
 
     const contentType = res.headers.get("content-type") ?? "";
@@ -85,7 +91,10 @@ async function request<T = unknown>(
 
     return data as T;
   } catch (err) {
-    if (err instanceof ApiError) throw err;
+    if (err instanceof ApiError) {
+      console.error(err);
+      throw err;
+    }
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new ApiError("요청 시간이 초과됐습니다.", 408, null);
     }
