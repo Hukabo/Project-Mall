@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export default function ImageGallery({ images }: { images: string[] }) {
+export default function ImageGallery({ images }: { images: Image[] }) {
   const [selected, setSelected] = useState(0);
 
   if (!images) {
@@ -19,7 +19,7 @@ export default function ImageGallery({ images }: { images: string[] }) {
       {/* 대표 이미지 */}
       <div className="relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200 mb-2">
         <Image
-          src={`${process.env.NEXT_PUBLIC_LOCAL_API_URL}/product/images/${images[selected]}`}
+          src={images[selected].secure_url}
           alt="상품 이미지"
           fill
           priority
@@ -42,7 +42,10 @@ export default function ImageGallery({ images }: { images: string[] }) {
               }`}
             >
               <Image
-                src={`${process.env.NEXT_PUBLIC_LOCAL_API_URL}/product/images/${image}`}
+                src={image.secure_url.replace(
+                  "/upload/",
+                  "/upload/w_300,h_300,c_fill,q_auto,f_auto/",
+                )}
                 alt={`썸네일 ${i + 1}`}
                 fill
                 unoptimized
