@@ -1,5 +1,6 @@
 import { SyntheticEvent } from "react";
 import { User } from "../types/user";
+import { api } from "./api";
 
 export async function getUser(): Promise<User | null> {
   return await fetch("http://localhost:8080/users/profile", {
@@ -28,26 +29,11 @@ export async function getUser(): Promise<User | null> {
 export async function login(e: SyntheticEvent, form: any) {
   e.preventDefault();
 
-  await fetch("http://localhost:8080/auth/login", {
-    method: "POST",
-    headers: { "Content-type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(form),
-  })
-    .then(async (res) => {
-      if (!res.ok) {
-        throw new Error("로그인 실패");
-      }
-
-      return res.json();
-    })
-    .then((data) => {
-      console.log(`data = ${data}`);
-      alert(data.message);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  const res = await api.post<{ message: string; username: string }>(
+    "auth/login",
+    form,
+  );
+  alert(`환영합니다. ${res.username}님`);
 }
 
 export async function logout() {
