@@ -10,7 +10,7 @@ import { User } from "../_lib/types/user";
 import SearchBar from "./SearchBar";
 
 export default function Header() {
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
 
   return (
     <header className="py-3 px-12 flex justify-between shadow-2xs bg-surface border-b border-grey-light-4">
@@ -39,13 +39,7 @@ export default function Header() {
               주문내역
             </Link>
 
-            <button
-              onClick={async () => {
-                await logout();
-                window.location.reload();
-              }}
-              className="cursor-pointer hover:text-rust"
-            >
+            <button onClick={logout} className="cursor-pointer hover:text-rust">
               로그아웃
             </button>
           </>
