@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/domains/user/entity/user.entity';
 import { Order } from 'src/domains/order/entity/order.entity';
+import { TimeStamp } from 'src/embedded_columns/time_stamp';
 
 export enum PaymentStatus {
   PENDING = 'PENDING',
@@ -39,14 +40,12 @@ export class Payment {
   @ManyToOne(() => User)
   user!: User;
 
-  // 결제가 주문 FK를 소유합니다. 한 주문에는 하나의 결제만 연결됩니다.
-  @OneToOne(() => Order, (order) => order.payment)
+  @OneToOne(() => Order, (order) => order.payment, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'order_id' })
   order!: Order;
 
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Column(() => TimeStamp)
+  timeStamp!: TimeStamp;
 }

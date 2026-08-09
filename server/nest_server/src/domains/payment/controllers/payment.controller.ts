@@ -10,13 +10,15 @@ import { PaymentService } from '../services/payment.service';
 @Controller('payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
-  @Post('prepare') prepare(
+  @Post('prepare')
+  prepare(
     @CurrentUser('id') userId: string,
     @Body(new ValidationPipe(preparePaymentSchema)) dto: PreparePaymentDto,
   ) {
     return this.paymentService.prepare(userId, dto);
   }
-  @Post('confirm') confirm(
+  @Post('confirm')
+  confirm(
     @CurrentUser('id') userId: string,
     @Body(new ValidationPipe(confirmPaymentSchema)) dto: ConfirmPaymentDto,
   ) {
