@@ -1,20 +1,15 @@
 import Image from "next/image";
-import { Product } from "../_lib/types/product";
-import { useContext } from "react";
-import { UserContext } from "../_lib/context/UserProvider";
-import { api } from "../_lib/api/api";
+import { Product } from "../_lib/types/product/product";
 
 export default function ProductCard(product: Product) {
-  const imageUrl = product.images
-    ? `${process.env.NEXT_PUBLIC_LOCAL_API_URL}/product/images/${product.images[0]}`
-    : null;
+  const thumbnail = product.thumbnail ?? null;
 
   return (
     <div className="max-w-50 max-h-80 flex flex-col p-3 border border-grey-dark-3 shadow-dark cursor-pointer bg-grey-light-3 transition-all duration-300 hover:-translate-y-2.5">
       <div className="relative w-45 h-45 overflow-hidden rounded-md self-center mb-3">
-        {imageUrl ? (
+        {thumbnail ? (
           <Image
-            src={imageUrl}
+            src={thumbnail}
             alt={`product preview-${product.name}`}
             fill
             unoptimized
@@ -31,7 +26,10 @@ export default function ProductCard(product: Product) {
       <p className="truncate font-light">{product.name}</p>
       <p>{product.price.toLocaleString()}원</p>
       <p>
-        평점: <span className="text-ochre">★★★★★</span>
+        평점:{" "}
+        <span className="text-ochre">
+          &#9734;&#9734;&#9734;&#9734;&#9734; (0)
+        </span>
       </p>
     </div>
   );
