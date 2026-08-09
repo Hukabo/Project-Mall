@@ -12,6 +12,7 @@ import { Product } from 'src/domains/product/entity/product.entity';
 import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { OrderStatus } from 'src/enums/status.enum';
 import { CreateOrderDto } from '../dto/create-order.dto';
+import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
 @Injectable()
 export class OrderService {
@@ -34,6 +35,9 @@ export class OrderService {
       const cartItems = await manager.find(CartItem, {
         where: {
           id: In(cartItemIds),
+          cart: {
+            user: { id: userId },
+          },
         },
         relations: {
           productSpec: {
@@ -43,15 +47,6 @@ export class OrderService {
           },
         },
       });
-
-      if (cartItems.length !== dto.cartItemIds.length)
-        throw new NotFoundException('장바구니 일부 상품을 찾을 수 없습니다..');
-
-      // 재고 확인
-      for (const item of cartItems) {
-        if (item.productSpec.stock < item.quantity)
-          throw new BadRequestException('상품 수량이 부족합니다..');
-      }
 
       // 주문 조회
       const order = await manager.findOne(Order, {
@@ -67,28 +62,24 @@ export class OrderService {
         throw new NotFoundException('해당 주문을 찾을 수 없습니다.');
       }
 
-      // 주문 생성
+      // 주문 상품 생성
       const orderItems = cartItems.map((item) => {
-        return manager.create(OrderItem, {
+        return manager.save(OrderItem, {
           name: item.productSpec.productView.product.name,
           price: item.productSpec.productView.product.price,
           description: item.productSpec.productView.product.description,
           quantity: item.quantity,
           order,
+          productSpec: item.productSpec,
         });
-      });
-
-      await manager.save(Order, {
-        ...order,
-        orderItems,
       });
 
       // 재고 차감
       for (const item of cartItems) {
         await manager.decrement(
-          Product,
+          ProductSpec,
           {
-            id: item.productSpec.productView.product.id,
+            id: item.productSpec.id,
           },
           'stock',
           item.quantity,
