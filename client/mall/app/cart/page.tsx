@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { api } from "../_lib/api/api";
 
 import { CartItem } from "@/app/_lib/types/cart_item";
 import { useParams, useRouter } from "next/navigation";
 import { won } from "@/app/_lib/util/common";
 import Link from "next/link";
+import { UserContext } from "../_lib/context/UserProvider";
+import Image from "next/image";
 
 export default function CartPage() {
+  const { user } = useContext(UserContext);
   const [items, setItems] = useState<CartItem[]>([]);
   const [promo, setPromo] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
@@ -16,6 +19,8 @@ export default function CartPage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!user) router.push("/");
+
     async function loadCartItems() {
       const cartItems = await api.get<CartItem[]>(`cart`);
 
@@ -31,7 +36,7 @@ export default function CartPage() {
     if (!item) return;
 
     const qty = Math.min(
-      item.product.stock,
+      item.productSpec.stock,
       Math.max(1, item.quantity + delta),
     );
 
@@ -58,7 +63,11 @@ export default function CartPage() {
 
   const subtotal = useMemo(
     () =>
-      items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+      items.reduce(
+        (sum, item) =>
+          sum + item.productSpec.productView.product.price * item.quantity,
+        0,
+      ),
     [items],
   );
   const shipping = subtotal === 0 ? 0 : subtotal >= 50000 ? 0 : 3500;
@@ -66,12 +75,12 @@ export default function CartPage() {
   const total = subtotal + shipping - discount;
 
   const applyPromo = () => {
-    if (promo.trim().toUpperCase() === "LOAM10") {
+    if (promo.trim().toUpperCase() === "TEST_COUPON") {
       setPromoApplied(true);
       setPromoError("");
     } else {
       setPromoApplied(false);
-      setPromoError("유효하지 않은 코드예요. LOAM10을 입력해 보세요.");
+      setPromoError("유효하지 않은 코드예요. TEST_COUPON을 입력해 보세요.");
     }
   };
 
@@ -115,19 +124,27 @@ export default function CartPage() {
                     className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t py-5 md:grid-cols-[64px_1fr_140px_110px_32px] border-line"
                   >
                     <div className="col-span-3 flex h-16 w-16 items-center justify-center rounded-sm text-2xl md:col-span-1 bg-surface border border-line">
-                      {"🥰"}
+                      <Image
+                        width={64}
+                        height={64}
+                        src={item.productSpec.productView.images[0].secure_url}
+                        alt={`cart item preview-${item.productSpec.productView.product.name}`}
+                        unoptimized
+                        loading="eager"
+                        className="h-auto object-cover"
+                      />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
                       <p className="font-display text-lg leading-tight">
-                        {item.product.name}
+                        {`${item.productSpec.productView.product.name} ${item.productSpec.productView.color}-${item.productSpec.size}`}
                       </p>
                       <p className="mt-0.5 text-sm text-ink-soft">
-                        {item.product.description}
+                        {item.productSpec.productView.product.description}
                       </p>
-                      {item.quantity >= item.product.stock && (
+                      {item.quantity >= item.productSpec.stock && (
                         <p className="mt-1 font-mono text-[11px] text-rust">
-                          재고 {item.product.stock}개 한정
+                          재고 {item.productSpec.stock}개 한정
                         </p>
                       )}
                     </div>
@@ -140,7 +157,7 @@ export default function CartPage() {
                           onClick={() => updateQty(item.id, -1)}
                           disabled={item.quantity <= 1}
                           className="h-8 w-8 rounded-full text-sm transition disabled:opacity-30"
-                          aria-label={`${item.product.name} 수량 줄이기`}
+                          aria-label={`${item.productSpec.productView.product.name} 수량 줄이기`}
                         >
                           −
                         </button>
@@ -150,9 +167,9 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => updateQty(item.id, 1)}
-                          disabled={item.quantity >= item.product.stock}
+                          disabled={item.quantity >= item.productSpec.stock}
                           className="h-8 w-8 rounded-full text-sm transition disabled:opacity-30"
-                          aria-label={`${item.product.name} 수량 늘리기`}
+                          aria-label={`${item.productSpec.productView.product.name} 수량 늘리기`}
                         >
                           +
                         </button>
@@ -160,7 +177,10 @@ export default function CartPage() {
                     </div>
 
                     <p className="justify-self-end font-mono text-sm md:text-right">
-                      {won(item.product.price * item.quantity)}
+                      {won(
+                        item.productSpec.productView.product.price *
+                          item.quantity,
+                      )}
                     </p>
 
                     <button
@@ -168,7 +188,7 @@ export default function CartPage() {
                       onClick={() => removeItem(item.id)}
                       className="justify-self-end text-lg leading-none transition hover:opacity-60 md:justify-self-center"
                       style={{ color: "var(--rust)" }}
-                      aria-label={`${item.product.name} 삭제`}
+                      aria-label={`${item.productSpec.productView.product.name} 삭제`}
                       title="삭제"
                     >
                       ×
@@ -196,7 +216,7 @@ export default function CartPage() {
                   </div>
                   {promoApplied && (
                     <div className="flex justify-between text-moss">
-                      <dt>할인 (LOAM10)</dt>
+                      <dt>할인 (TEST_COUPON)</dt>
                       <dd>−{won(discount)}</dd>
                     </div>
                   )}
@@ -233,7 +253,7 @@ export default function CartPage() {
                         setPromo(e.target.value);
                         setPromoError("");
                       }}
-                      placeholder="LOAM10"
+                      placeholder="TEST_COUPON"
                       className="w-full rounded-none border border-line px-3 py-2 text-sm outline-none focus:ring-1"
                     />
                     <button
