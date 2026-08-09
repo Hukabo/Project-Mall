@@ -136,7 +136,15 @@ export class ProductService {
         where: { id },
         relations: {
           productViews: {
+            images: true,
             productSpecs: true,
+          },
+        },
+        order: {
+          productViews: {
+            productSpecs: {
+              id: 'ASC',
+            },
           },
         },
       });
