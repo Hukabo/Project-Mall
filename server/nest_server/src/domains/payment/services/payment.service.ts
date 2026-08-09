@@ -32,7 +32,12 @@ export class PaymentService {
 
     return this.dataSource.transaction(async (manager) => {
       const cartItems = await manager.find(CartItem, {
-        where: { id: In(cartItemIds), cart: { user: { id: userId } } },
+        where: {
+          id: In(cartItemIds),
+          cart: {
+            user: { id: userId },
+          },
+        },
         relations: {
           productSpec: {
             productView: {
@@ -46,6 +51,14 @@ export class PaymentService {
         throw new BadRequestException('유효하지 않은 장바구니 상품입니다.');
       }
 
+      cartItems.forEach((item) => {
+        if (item.quantity > item.productSpec.stock) {
+          throw new ConflictException(
+            `${item.productSpec.sku}의 재고량이 부족합니다.\n주문: ${item.quantity}\n재고: ${item.productSpec.stock}`,
+          );
+        }
+      });
+
       const amount = cartItems.reduce(
         (sum, item) =>
           sum + item.productSpec.productView.product.price * item.quantity,
@@ -57,6 +70,7 @@ export class PaymentService {
           : `${cartItems[0].productSpec.productView.product.name} 외 ${cartItems.length - 1}건`;
 
       const createdShipping = await manager.save(Shipping, shipping);
+
       const order = await manager.save(
         manager.create(Order, {
           name: orderName,
@@ -64,6 +78,7 @@ export class PaymentService {
           user: { id: userId },
         }),
       );
+
       const payment = await manager.save(
         manager.create(Payment, {
           order,
@@ -83,14 +98,18 @@ export class PaymentService {
 
   async confirm(userId: string, dto: ConfirmPaymentDto) {
     const payment = await this.paymentRepository.findOne({
-      where: { orderId: dto.orderId, user: { id: userId } },
+      where: {
+        orderId: dto.orderId,
+        user: { id: userId },
+      },
     });
 
     if (!payment)
       throw new NotFoundException('준비된 결제 정보를 찾을 수 없습니다.');
 
-    if (payment.status === PaymentStatus.PAID)
-      throw new ConflictException('이미 승인된 결제입니다.');
+    // 배포 환경에서는 주석 해제
+    // if (payment.status === PaymentStatus.PAID)
+    //   throw new ConflictException('이미 승인된 결제입니다.');
 
     if (payment.amount !== dto.amount)
       throw new BadRequestException(
@@ -120,7 +139,7 @@ export class PaymentService {
       paymentKey?: string;
     };
 
-    console.log(tossPayment);
+    console.log('tossPayment = ', tossPayment);
 
     if (!response.ok) {
       payment.status = PaymentStatus.FAIL;
