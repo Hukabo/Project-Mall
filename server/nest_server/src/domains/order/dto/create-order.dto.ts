@@ -4,8 +4,8 @@ import { shippingSchema } from '../shipping/shipping.dto';
 
 export const createOrderSchema = z
   .object({
-    orderId: z.string().min(8).max(24),
-    cartItemIds: z.array(z.number()),
+    orderId: z.string().min(8),
+    cartItemIds: z.array(z.number()).min(1),
   })
   .required();
 
