@@ -15,6 +15,7 @@ import { User } from 'src/domains/user/entity/user.entity';
 import { PaymentMethod } from 'src/enums/payment.enum';
 import { Payment } from 'src/domains/payment/entity/payment.entity';
 import { Shipping } from '../shipping/shipping.entity';
+import { TimeStamp } from 'src/embedded_columns/time_stamp';
 
 @Entity('orders')
 export class Order {
@@ -39,17 +40,12 @@ export class Order {
   @ManyToOne(() => User, (user) => user.orders)
   user!: User;
 
-  @OneToMany(() => OrderItem, (item) => item.order, {
-    cascade: true,
-  })
+  @OneToMany(() => OrderItem, (item) => item.order)
   orderItems!: OrderItem[];
 
   @OneToOne(() => Payment, (payment) => payment.order)
   payment!: Payment;
 
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Column(() => TimeStamp)
+  timeStamp!: TimeStamp;
 }
