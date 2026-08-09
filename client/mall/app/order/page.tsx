@@ -12,6 +12,7 @@ import {
 } from "@tosspayments/tosspayments-sdk";
 import { won } from "../_lib/util/common";
 import PaymentWidgets from "../_component/Payment";
+import Image from "next/image";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || "";
 
@@ -136,7 +137,8 @@ export default function OrderPage() {
   const subtotal = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + item.product.price * item.quantity,
+        (sum, item) =>
+          sum + item.productSpec.productView.product.price * item.quantity,
         0,
       ),
     [cartItems],
@@ -184,7 +186,7 @@ export default function OrderPage() {
         cartItemIds: cartItems.map((item) => item.id),
         shipping,
       });
-      // 결제창에 보여 주는 금액도 서버가 계산해 저장한 값만 사용합니다.
+      // 결제창에 보여 주는 금액도 서버가 계산해 저장한 값만 사용
       const paymentAmount = { currency: "KRW", value: amount };
       setAmount(paymentAmount);
       await widgets.setAmount(paymentAmount);
@@ -198,13 +200,6 @@ export default function OrderPage() {
         customerName: user.username,
         customerMobilePhone: user.phone.replaceAll("-", ""),
       });
-
-      const order = await api.post("orders", {
-        orderId,
-        cartItemIds: cartItems.map((item) => item.id),
-      });
-
-      console.log(order);
     } catch (err) {
       console.error(err);
     } finally {
@@ -226,29 +221,39 @@ export default function OrderPage() {
           {/* 왼쪽: 주문 상품 + 배송지 + 결제수단 */}
           <div className="space-y-10">
             {/* 주문 상품 */}
-            <section>
+            <section className="mb-3">
               <h2 className="mb-4 font-mono text-xs tracking-widest text-moss">
                 주문 상품 ({cartItems.length})
               </h2>
               <ul className="border-line">
                 {cartItems.map((item) => (
                   <li
-                    key={item.product.name}
+                    key={item.id}
                     className="flex items-center gap-4 border-t py-4 first:border-t-0 border-line"
                   >
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm text-xl bg-surface border border-line">
-                      {"✅"}
+                      <Image
+                        width={56}
+                        height={56}
+                        src={item.productSpec.productView.images[0].secure_url}
+                        alt={`cart item preview-${item.productSpec.productView.product.name}`}
+                        unoptimized
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-display text-base">
-                        {item.product.name}
+                        {`${item.productSpec.productView.product.name} ${item.productSpec.productView.color}-${item.productSpec.size}`}
                       </p>
                       <p className="text-sm text-ink-soft">
-                        {item.product.description} · {item.quantity}개
+                        {item.productSpec.productView.product.description} ·{" "}
+                        {item.quantity}개
                       </p>
                     </div>
                     <p className="font-mono text-sm">
-                      {won(item.product.price * item.quantity)}
+                      {won(
+                        item.productSpec.productView.product.price *
+                          item.quantity,
+                      )}
                     </p>
                   </li>
                 ))}
