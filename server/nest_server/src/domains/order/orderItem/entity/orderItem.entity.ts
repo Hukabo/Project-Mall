@@ -28,10 +28,8 @@ export class OrderItem {
   quantity!: number;
 
   @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
-  @JoinColumn()
   order!: Order;
 
   @ManyToOne(() => ProductSpec, (productSpec) => productSpec.orderItems)
-  @JoinColumn()
   productSpec!: ProductSpec;
 }
