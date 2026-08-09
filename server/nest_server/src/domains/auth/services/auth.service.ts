@@ -65,7 +65,9 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async refreshAccessToken(user: User) {
+  async refreshAccessToken(userId: string) {
+    const user = await this.userService.findOne(userId);
+
     const { accessToken, refreshToken } = await this.generateToken(user);
 
     const hashedRefreshToken = await argon2.hash(refreshToken);
@@ -91,7 +93,9 @@ export class AuthService {
     const user = await this.userService.findOne(userId);
 
     if (!user || !user.hashedRefreshToken) {
-      throw new UnauthorizedException('Invalid refresh token..');
+      throw new NotFoundException(
+        'The User is not exists or has not refresh token..',
+      );
     }
 
     const isMatch = await argon2.verify(user.hashedRefreshToken, refreshToken);
