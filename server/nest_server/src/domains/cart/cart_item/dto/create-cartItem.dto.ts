@@ -1,9 +1,16 @@
+import { toNumber } from 'src/domains/product/dto/create-product.dto';
 import z from 'zod/v3';
 
 export const createCartItemSchema = z
   .object({
-    productId: z.number().positive(),
-    quantity: z.number().positive(),
+    cartItems: z
+      .array(
+        z.object({
+          id: z.preprocess(toNumber, z.number().positive()),
+          quantity: z.preprocess(toNumber, z.number().positive()),
+        }),
+      )
+      .min(1),
   })
   .required();
 
