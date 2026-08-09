@@ -57,8 +57,8 @@ async function request<T = unknown>(
   const timer = setTimeout(() => controller.abort(), timeout);
   const isFormData = body instanceof FormData;
 
-  try {
-    const res = await fetch(buildUrl(path, params), {
+  const req = async () =>
+    await fetch(buildUrl(path, params), {
       ...init,
       credentials: "include",
       signal: controller.signal,
@@ -73,6 +73,24 @@ async function request<T = unknown>(
             : JSON.stringify(body)
           : undefined,
     });
+  try {
+    let res = await req();
+
+    // 토큰 만료시 refresh 요청
+    if (res.status === 401) {
+      const refreshRes = await fetch(buildUrl("auth/refresh"), {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (refreshRes.ok) {
+        // refresh 성공 시 기존 요청 재전송
+        res = await req();
+      }
+
+      const data = refreshRes.json();
+      console.log("userId = ", data);
+    }
 
     const contentType = res.headers.get("content-type") ?? "";
     const data = contentType.includes("application/json")
@@ -80,11 +98,11 @@ async function request<T = unknown>(
       : await res.text();
 
     if (!res.ok) {
-      let message = `요청이 실패했습니다 (${res.status})`;
+      console.log("API ERROR DATA =", data);
+      console.log("API ERROR MESSAGE =", data?.message);
 
-      if (data && typeof data === "object" && "message" in data) {
-        message = String((data as { message: unknown }).message);
-      }
+      const message = getErrorMessage(data);
+      console.log(message);
 
       throw new ApiError(message, res.status, data);
     }
@@ -137,3 +155,39 @@ export const api = {
     options?: Omit<RequestOptions, "body" | "method">,
   ) => request<T>(path, { ...options, method: "DELETE" }),
 };
+
+function getErrorMessage(data: unknown): string {
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (data && typeof data === "object" && "message" in data) {
+    const message = (data as { message: unknown }).message;
+
+    if (typeof message === "string") {
+      return message;
+    }
+
+    if (
+      message &&
+      typeof message === "object" &&
+      ("message" in message || "error" in message)
+    ) {
+      const messageObj = message as { message: unknown; error: unknown };
+      const error = messageObj.error;
+      const nestedMessage = messageObj.message;
+
+      if (typeof nestedMessage === "string") {
+        return nestedMessage;
+      } else if (typeof error === "string") {
+        return error;
+      }
+    }
+
+    if (Array.isArray(message)) {
+      return message.join(", ");
+    }
+  }
+
+  return "요청이 실패했습니다.";
+}
