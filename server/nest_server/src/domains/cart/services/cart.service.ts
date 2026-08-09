@@ -1,12 +1,17 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import {
+  HttpException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { CreateCartItemDto } from 'src/domains/cart/cart_item/dto/create-cartItem.dto';
 import { UpdateCartItemDto } from 'src/domains/cart/cart_item/dto/update-cartItem.dto';
 import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { Product } from 'src/domains/product/entity/product.entity';
 import { User } from 'src/domains/user/entity/user.entity';
 import { InternalServerError } from 'src/errors/internal-server.error';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Cart } from '../entity/cart.entity';
 import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
@@ -24,14 +29,21 @@ export class CartService {
 
     @InjectRepository(ProductSpec)
     private readonly productSpecRepository: Repository<ProductSpec>,
+
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(
     userId: string,
     createCartItemDto: CreateCartItemDto,
-  ): Promise<CartItem> {
+  ): Promise<CartItem[]> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const user = await this.userRepository.findOne({
+      const user = await queryRunner.manager.findOne(User, {
         where: { id: userId },
         relations: {
           cart: {
@@ -47,34 +59,48 @@ export class CartService {
       }
       const cart = user.cart;
 
-      const { productId, quantity } = createCartItemDto;
+      const { cartItems } = createCartItemDto;
 
-      const productSpec = await this.productSpecRepository.findOneBy({
-        id: productId,
-      });
+      const results: CartItem[] = [];
 
-      if (!productSpec) {
-        throw new NotFoundException('해당 상품이 없습니다.');
-      }
-
-      // 해당 상품이 이미 장바구니에 있다면 수량 증가
-      const existingItem = cart.cartItems.find(
-        (item) => item.productSpec.id === productId,
-      );
-
-      if (existingItem) {
-        return await this.update(existingItem.id, {
-          quantity: existingItem.quantity + quantity,
+      for (const item of cartItems) {
+        const spec = await queryRunner.manager.findOne(ProductSpec, {
+          where: {
+            id: item.id,
+          },
         });
+
+        if (!spec) {
+          throw new NotFoundException('해당 상품을 찾을 수 없습니다.');
+        }
+
+        // 해당 상품이 이미 장바구니에 있다면 수량 증가
+        const existingItem = cart.cartItems.find(
+          (exItem) => exItem.productSpec.id === spec.id,
+        );
+
+        if (existingItem) {
+          existingItem.quantity += item.quantity;
+
+          const updated = await queryRunner.manager.save(existingItem);
+
+          results.push(updated);
+        }
+
+        // 새로운 담기는 상품이라면
+        const cartItem = queryRunner.manager.create(CartItem, {
+          quantity: item.quantity,
+          cart,
+          productSpec: spec,
+        });
+
+        results.push(cartItem);
       }
 
-      const cartItem = this.cartItemRepository.create({
-        quantity,
-        cart,
-        productSpec,
-      });
+      const res = await queryRunner.manager.save(CartItem, results);
+      await queryRunner.commitTransaction();
 
-      return await this.cartItemRepository.save(cartItem);
+      return res;
     } catch (error) {
       console.error(error);
 
@@ -104,6 +130,7 @@ export class CartService {
         relations: {
           productSpec: {
             productView: {
+              images: true,
               product: true,
             },
           },
@@ -114,10 +141,13 @@ export class CartService {
           productSpec: {
             id: true,
             size: true,
+            stock: true,
             productView: {
+              images: true,
               color: true,
               product: {
                 name: true,
+                price: true,
               },
             },
           },
