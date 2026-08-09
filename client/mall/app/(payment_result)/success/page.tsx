@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../_lib/api/api";
 import { won } from "@/app/_lib/util/common";
-import { UserContext } from "@/app/_lib/context/UserProvider";
 import PerforatedEdge from "@/app/_component/PerforatedEdge";
+import { CartItem } from "@/app/_lib/types/cart_item";
 
 type ConfirmState = "loading" | "error" | "success";
 
@@ -16,34 +16,58 @@ export default function SuccessPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [orderInfo, setOrderInfo] = useState<{ amount: number } | null>(null);
 
-  useEffect(() => {
-    const requestData = {
-      orderId: searchParams.get("orderId"),
-      amount: Number(searchParams.get("amount")),
-      paymentKey: searchParams.get("paymentKey"),
-    };
+  const requestData = {
+    orderId: searchParams.get("orderId"),
+    amount: Number(searchParams.get("amount")),
+    paymentKey: searchParams.get("paymentKey"),
+  };
 
-    if (
-      !requestData.orderId ||
-      !requestData.paymentKey ||
-      !Number.isInteger(requestData.amount)
-    ) {
+  async function getCartItems() {
+    return await api.get<CartItem[]>("cart");
+  }
+
+  async function createOrder(cartItems: CartItem[]) {
+    const order = await api.post("orders", {
+      orderId: requestData.orderId,
+      cartItemIds: cartItems.map((item) => item.id),
+    });
+
+    return order;
+  }
+
+  async function confirm() {
+    try {
+      await api.post("payments/confirm", requestData);
+      setState("success");
+      setOrderInfo({ amount: requestData.amount });
+    } catch (error: any) {
       setState("error");
-      setErrorMessage("결제 결과가 올바르지 않습니다.");
-      // router.replace("/fail?message=결제 결과가 올바르지 않습니다.");
-      return;
+      setErrorMessage(error.message ?? "결제 승인이 실패하였습니다.");
     }
-    async function confirm() {
-      try {
-        await api.post("payments/confirm", requestData);
-        setState("success");
-        setOrderInfo({ amount: requestData.amount });
-      } catch (error: any) {
+  }
+
+  useEffect(() => {
+    async function processPayment() {
+      if (
+        !requestData.orderId ||
+        !requestData.paymentKey ||
+        !Number.isInteger(requestData.amount)
+      ) {
         setState("error");
-        setErrorMessage(error.message ?? "결제 승인이 실패하였습니다.");
+        setErrorMessage("결제 결과가 올바르지 않습니다.");
+        // router.replace("/fail?message=결제 결과가 올바르지 않습니다.");
+        return;
       }
+
+      const cartItems = await getCartItems();
+
+      await confirm(); // 개발환경이라 두번 호출되어 "이미 처리중인 요청"이라 에러 발생
+      const res = await createOrder(cartItems);
+
+      console.log("order = ", res);
     }
-    confirm(); // 개발환경이라 두번 호출되어 "이미 처리중인 요청"이라 에러 발생
+
+    processPayment();
   }, []);
 
   return (
@@ -100,7 +124,7 @@ function SuccessView({
       <div className="my-6 border-t border-dashed border-[#2B2A26]/30" />
 
       <p className="text-lg font-semibold">결제가 완료되었습니다</p>
-      <p className="mt-4 text-2xl">{won(amount)}원</p>
+      <p className="mt-4 text-2xl">{won(amount)}</p>
 
       <div className="my-6 border-t border-dashed border-[#2B2A26]/30" />
       <p className="text-xs text-[#2B2A26]/50 font-sans">
