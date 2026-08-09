@@ -30,17 +30,13 @@ import {
   type UpdateProductDto,
 } from '../dto/update-product.dto';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
-import { RoleGuard } from 'src/guards/roles.guard';
+
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { join } from 'path';
-import { cwd } from 'process';
-import { existsSync } from 'fs';
-import type { Response } from 'express';
+
 import { Public } from 'src/decorators/public.decorator';
 import { Image } from 'src/domains/image/entity/image.entity';
-import { ProductSpec } from '../entity/productSpec.entity';
 
 @Controller('product')
 export class ProductController {
