@@ -141,11 +141,7 @@ export default function ProductRegisterPage() {
     }));
   }
 
-  function handleSizeStock(
-    variantIdx: number,
-    size: string,
-    stock: number | string,
-  ) {
+  function handleSizeStock(variantIdx: number, size: string, stock: number) {
     setForm((prev) => ({
       ...prev,
       variants: prev.variants.map((v, i) =>
