@@ -34,7 +34,7 @@ export class OrderController {
   }
 
   @Get(':orderId')
-  find(@Param('orderId', ParseIntPipe) orderId: string) {
+  find(@Param('orderId') orderId: string) {
     return this.orderService.find(orderId);
   }
 
@@ -44,10 +44,7 @@ export class OrderController {
   }
 
   @Patch(':orderId')
-  update(
-    @Param('orderId', ParseIntPipe) orderId: string,
-    @Body() orderStatus: OrderStatus,
-  ) {
+  update(@Param('orderId') orderId: string, @Body() orderStatus: OrderStatus) {
     return this.orderService.update(orderId, orderStatus);
   }
 }
