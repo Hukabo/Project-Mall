@@ -1,7 +1,7 @@
 import { Size } from 'src/enums/size.enum';
 import z from 'zod/v3';
 
-const toNumber = (val: unknown) => Number(val);
+export const toNumber = (val: unknown) => Number(val);
 
 export const createProductSchema = z
   .object({
