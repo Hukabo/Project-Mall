@@ -1,4 +1,4 @@
 export interface SizeStock {
   size: string;
-  stock: number | string;
+  stock: number;
 }

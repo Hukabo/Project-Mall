@@ -17,14 +17,17 @@ export interface PageResponse {
   hasNext: boolean;
 }
 
-interface ProductView {
+export interface ProductView {
   id: number;
   color: string;
   images: Image[];
   productSpecs: ProductSpec[];
+  product: Product;
 }
 
-interface ProductSpec {
+export interface ProductSpec {
+  id: number;
   size: string;
-  stock: number | string;
+  stock: number;
+  productView: ProductView;
 }
