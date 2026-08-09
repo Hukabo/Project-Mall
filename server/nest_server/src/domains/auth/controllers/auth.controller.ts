@@ -40,6 +40,7 @@ export class AuthController {
     return { message: 'login success', username: user.username };
   }
 
+  @Public()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   async refreshAccessToken(
