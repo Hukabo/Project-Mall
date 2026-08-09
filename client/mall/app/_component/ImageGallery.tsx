@@ -3,7 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export default function ImageGallery({ images }: { images: Image[] }) {
+export default function ImageGallery({
+  images,
+}: {
+  images: Image[] | undefined;
+}) {
   const [selected, setSelected] = useState(0);
 
   if (!images) {
