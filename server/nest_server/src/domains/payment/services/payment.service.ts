@@ -14,6 +14,8 @@ import { PreparePaymentDto } from '../dto/prepare-payment.dto';
 import { Payment, PaymentStatus } from '../entity/payment.entity';
 import { Order } from 'src/domains/order/entity/order.entity';
 import { Shipping } from 'src/domains/order/shipping/shipping.entity';
+import { InternalServerError } from 'src/errors/internal-server.error';
+import { OrderStatus } from 'src/enums/order-status.enum';
 
 @Injectable()
 export class PaymentService {
@@ -28,7 +30,7 @@ export class PaymentService {
   ) {}
 
   async prepare(userId: string, dto: PreparePaymentDto) {
-    const { cartItemIds, shipping } = dto;
+    const { cartItemIds, shipping, isDiscount } = dto;
 
     return this.dataSource.transaction(async (manager) => {
       const cartItems = await manager.find(CartItem, {
@@ -62,7 +64,7 @@ export class PaymentService {
       const amount = cartItems.reduce(
         (sum, item) =>
           sum + item.productSpec.productView.product.price * item.quantity,
-        0,
+        isDiscount ? 0 : 3500,
       );
       const orderName =
         cartItems.length === 1
@@ -99,17 +101,19 @@ export class PaymentService {
   async confirm(userId: string, dto: ConfirmPaymentDto) {
     const payment = await this.paymentRepository.findOne({
       where: {
-        orderId: dto.orderId,
+        order: { id: dto.orderId },
         user: { id: userId },
+      },
+      relations: {
+        order: true,
       },
     });
 
     if (!payment)
       throw new NotFoundException('준비된 결제 정보를 찾을 수 없습니다.');
 
-    // 배포 환경에서는 주석 해제
-    // if (payment.status === PaymentStatus.PAID)
-    //   throw new ConflictException('이미 승인된 결제입니다.');
+    if (payment.status === PaymentStatus.PAID)
+      throw new ConflictException('이미 승인된 결제입니다.');
 
     if (payment.amount !== dto.amount)
       throw new BadRequestException(
@@ -119,7 +123,9 @@ export class PaymentService {
     const secretKey = this.configService.get<string>('TOSS_SECRET_KEY');
 
     if (!secretKey) throw new Error('TOSS_SECRET_KEY가 설정되지 않았습니다.');
-    const response = await fetch(
+
+    // 토스페이먼츠 결제 승인 요청
+    const res = await fetch(
       'https://api.tosspayments.com/v1/payments/confirm',
       {
         method: 'POST',
@@ -131,7 +137,8 @@ export class PaymentService {
         body: JSON.stringify(dto),
       },
     );
-    const tossPayment = (await response.json()) as {
+
+    const tossPayment = (await res.json()) as {
       code?: string;
       message?: string;
       orderId?: string;
@@ -141,7 +148,7 @@ export class PaymentService {
 
     console.log('tossPayment = ', tossPayment);
 
-    if (!response.ok) {
+    if (!res.ok) {
       payment.status = PaymentStatus.FAIL;
       await this.paymentRepository.save(payment);
 
@@ -151,7 +158,7 @@ export class PaymentService {
       });
     }
     if (
-      tossPayment.orderId !== payment.orderId ||
+      tossPayment.orderId !== payment.order.id ||
       tossPayment.totalAmount !== payment.amount
     ) {
       payment.status = PaymentStatus.FAIL;
@@ -163,7 +170,12 @@ export class PaymentService {
     }
     payment.status = PaymentStatus.PAID;
     payment.paymentKey = tossPayment.paymentKey ?? dto.paymentKey;
+
     await this.paymentRepository.save(payment);
+    await this.dataSource.manager.update(Order, dto.orderId, {
+      status: OrderStatus.PAID,
+    });
+
     return tossPayment;
   }
 }
