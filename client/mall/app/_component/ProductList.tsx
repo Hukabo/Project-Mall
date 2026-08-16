@@ -36,7 +36,6 @@ export default function ProductList() {
 
   useEffect(() => {
     loadProducts(1, search, false);
-    console.log("products = ", products);
   }, [search]);
 
   async function fetchMore() {
@@ -46,21 +45,27 @@ export default function ProductList() {
   }
 
   return (
-    <InfiniteScroll
-      className="flex-1 p-7 grid grid-cols-(--grid-cols) grid-rows-(--grid-rows) gap-8"
-      dataLength={products.length}
-      next={fetchMore}
-      hasMore={hasNext}
-      loader={<Loading />}
-      // endMessage={<p style={{ textAlign: "center" }}>All items loaded.</p>}
-    >
-      {[
-        ...new Map(products.map((product) => [product.id, product])).values(),
-      ].map((product, i) => (
-        <Link key={`index-${i}`} href={`/product/${product.id}`}>
-          <ProductCard {...product} />
-        </Link>
-      ))}
-    </InfiniteScroll>
+    <section className="min-w-0 flex-1">
+      <InfiniteScroll
+        className="w-full mx-auto grid grid-cols-[repeat(auto-fit,200px)] justify-center gap-8 p-7"
+        dataLength={products.length}
+        next={fetchMore}
+        hasMore={hasNext}
+        loader={<Loading />}
+        // endMessage={<p style={{ textAlign: "center" }}>All items loaded.</p>}
+      >
+        {[
+          ...new Map(products.map((product) => [product.id, product])).values(),
+        ].map((product) => (
+          <Link
+            key={product.id}
+            href={`/product/${product.id}`}
+            className="min-w-0"
+          >
+            <ProductCard {...product} />
+          </Link>
+        ))}
+      </InfiniteScroll>
+    </section>
   );
 }
