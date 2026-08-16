@@ -1,9 +1,3 @@
-import { api } from "@/app/_lib/api/api";
-import { UserContext } from "@/app/_lib/provider/UserProvider";
-import { CartItem } from "@/app/_lib/types/cart_item";
-import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
-
 export default function AddToCartBtn({
   onSubmit,
   added,
