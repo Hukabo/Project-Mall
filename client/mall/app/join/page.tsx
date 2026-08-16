@@ -4,7 +4,7 @@ import { redirect } from "next/dist/server/api-utils";
 import Image from "next/image";
 import { SyntheticEvent, useState } from "react";
 import { api } from "../_lib/api/api";
-import { User } from "../_lib/types/user";
+import { User } from "../_lib/types/user/user";
 import ShippingAddressForm from "../_component/ShippingAdressForm";
 
 export default function JoinPage() {
@@ -49,12 +49,6 @@ export default function JoinPage() {
             회원가입
           </h1>
           <a href="/" className="inline-block">
-            {/* <Image
-              src="/svg/home.svg"
-              alt="Home image"
-              width={40}
-              height={40}
-            /> */}
             <h1 className="text-2xl italic uppercase">Mall</h1>
           </a>
         </div>
