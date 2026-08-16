@@ -19,11 +19,11 @@ export default function SearchBar() {
   return (
     <form
       action="#"
-      className="flex justify-center w-1/5 shadow-2xl rounded-full focus-within:w-1/3 transition-all duration-300 border border-grey-light-4"
+      className="flex justify-center w-[max(20vw,10rem)] shadow-2xl rounded-full min-[400px]:focus-within:w-1/3 transition-all duration-300 border border-grey-light-4"
     >
       <input
         type="search"
-        className="w-[80%] focus:w-[90%] focus:outline-none px-3 py-1.5 transition-all duration-300"
+        className="w-[80%] min-[400px]:focus:scale-x-110 focus:outline-none px-3 py-1.5 transition-all duration-300"
         placeholder="상품을 입력해주세요"
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -32,7 +32,7 @@ export default function SearchBar() {
         onClick={(e) => handleSearch(e)}
         className="cursor-pointer"
       >
-        <MagnifyingGlass className="w-6 h-6 text-grey-dark-1 stroke-[1.5]" />
+        <MagnifyingGlass className="w-6 h-6 text-grey-dark-1 stroke-[1.5] max-[763px]:mr-1" />
       </button>
     </form>
   );
