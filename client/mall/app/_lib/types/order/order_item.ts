@@ -1,8 +1,10 @@
 type OrderItem = {
+  id: number;
   name: string;
-  desc: string;
+  color: string;
+  size: string;
   price: number;
   quantity: number;
-  emoji: string; // image
   productId: number;
+  thumbnail: string;
 };

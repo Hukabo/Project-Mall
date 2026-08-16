@@ -1,4 +1,4 @@
-import { Category } from "../category";
+import { Category } from "../category/category";
 
 export interface Product {
   id: number;
@@ -8,6 +8,7 @@ export interface Product {
   thumbnail: string;
   category: Category;
   productViews: ProductView[];
+  timeStamp: TimeStamp;
 }
 
 export interface PageResponse {
