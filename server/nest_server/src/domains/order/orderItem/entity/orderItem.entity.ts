@@ -8,6 +8,7 @@ import {
 import { Order } from '../../entity/order.entity';
 import { Product } from 'src/domains/product/entity/product.entity';
 import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
+import { Size } from 'src/enums/size.enum';
 
 @Entity('order_item')
 export class OrderItem {
@@ -18,14 +19,23 @@ export class OrderItem {
   @Column()
   name!: string;
 
+  @Column({ nullable: true })
+  color!: string;
+
+  @Column({ type: 'enum', enum: Size, nullable: true })
+  size!: Size;
+
   @Column()
   price!: number;
 
   @Column()
-  description!: string;
+  quantity!: number;
 
   @Column()
-  quantity!: number;
+  thumbnail!: string;
+
+  @Column()
+  productId!: number;
 
   @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   order!: Order;
