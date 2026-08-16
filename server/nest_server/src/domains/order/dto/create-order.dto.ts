@@ -1,4 +1,3 @@
-import { PaymentMethod } from 'src/enums/payment.enum';
 import z from 'zod/v3';
 import { shippingSchema } from '../shipping/shipping.dto';
 
