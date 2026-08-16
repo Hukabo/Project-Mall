@@ -1,11 +1,9 @@
 "use client";
 
 import { SyntheticEvent, useEffect, useState } from "react";
-import { createProduct } from "../../_lib/api/product";
 import Button from "@/app/_component/Button";
 import { api } from "@/app/_lib/api/api";
-import { Category } from "@/app/_lib/types/category";
-import ImageInput from "@/app/_component/ImageInput";
+import { Category } from "@/app/_lib/types/category/category";
 import { CreateProductForm } from "@/app/_lib/types/product/create_product_form";
 import { SizeStock } from "@/app/_lib/types/product/size_stock";
 import ProductInputField from "@/app/_component/ProductInputField";
