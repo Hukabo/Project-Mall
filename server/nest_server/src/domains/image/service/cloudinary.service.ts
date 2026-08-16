@@ -29,8 +29,8 @@ export class CloudinaryService {
 
   async uploadBuffer(
     buffer: Buffer,
-    folder = 'product_images',
     fileName: string,
+    folder = 'product_images',
   ): Promise<UploadApiResponse> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
