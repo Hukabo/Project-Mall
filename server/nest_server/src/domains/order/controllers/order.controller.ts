@@ -9,7 +9,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { OrderService } from '../services/order.service';
-import { OrderStatus } from 'src/enums/status.enum';
+import { OrderStatus } from 'src/enums/order-status.enum';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import {
