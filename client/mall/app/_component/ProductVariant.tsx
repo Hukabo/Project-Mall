@@ -12,11 +12,7 @@ interface ProductVariantOptions {
   changeColor: (variantIdx: number, color: string) => void;
   addImage: (variantIdx: number, files: File[]) => void;
   removeImage: (variantIdx: number, imageIdx: number) => void;
-  handleSizeStock: (
-    variantIdx: number,
-    size: string,
-    stock: number | string,
-  ) => void;
+  handleSizeStock: (variantIdx: number, size: string, stock: number) => void;
   removeVariant: (variantIdx: number) => void;
 }
 
@@ -82,18 +78,18 @@ export default function ProductVariant({
                 value={sizeStock.stock}
                 className="w-full block bg-white p-1 rounded-sm focus:outline-none border border-line text-center"
                 onChange={(e) =>
-                  handleSizeStock(variantIdx, sizeStock.size, e.target.value)
+                  handleSizeStock(variantIdx, sizeStock.size, +e.target.value)
                 }
-                onFocus={(e) => {
-                  if (e.target.value === "0") {
-                    handleSizeStock(variantIdx, sizeStock.size, "");
-                  }
-                }}
-                onBlur={(e) => {
-                  if (e.target.value === "") {
-                    handleSizeStock(variantIdx, sizeStock.size, "0");
-                  }
-                }}
+                // onFocus={(e) => {
+                //   if (e.target.value === "0") {
+                //     handleSizeStock(variantIdx, sizeStock.size, "");
+                //   }
+                // }}
+                // onBlur={(e) => {
+                //   if (e.target.value === "") {
+                //     handleSizeStock(variantIdx, sizeStock.size, "0");
+                //   }
+                // }}
               />
             </div>
           ))}
