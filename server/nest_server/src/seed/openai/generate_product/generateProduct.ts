@@ -22,17 +22,18 @@ async function bootstrap() {
     OpenAiGenerateProductModule,
   );
 
-  const category = await ask('등록할 상품의 카테고리를 입력해주세요.\n:');
   const item_string = await ask(
-    '등록할 상품 목록을 \", \"(으)로 구분하여 입력하세요.(예: 라이더 자켓, 크로스백)\n:',
+    '등록할 상품 목록을 \"&\"(으)로 구분하여 입력하세요.(예: 라이더 자켓&크로스백)\n:',
   );
-  const item_list = item_string.split(', ');
-  const prompt = await ask('AI에게 입력할 프롬프트를 입력해주세요.\n:');
+  const items = item_string.split('&');
 
   const service = app.get(OpenAiGenerateProductService);
 
-  await service.generate(category, item_list, prompt);
+  console.log('상품 생성 시작');
 
+  await service.generate(items);
+
+  console.log('전체 상품 생성 완료');
   await app.close();
   process.exit(0);
 }
