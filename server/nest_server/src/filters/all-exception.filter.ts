@@ -32,7 +32,7 @@ export class CatchEverythingFilter implements ExceptionFilter {
       char.repeat(process.stdout.columns ?? fallback);
 
     console.error(line());
-    console.error('timestamp: ', new Date().toISOString());
+    console.error('timestamp: ', new Date().toLocaleString('ko-KR'));
     console.error(
       'PATH: ',
       httpAdapter.getRequestMethod(request),
