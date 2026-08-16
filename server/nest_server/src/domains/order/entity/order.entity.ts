@@ -1,4 +1,4 @@
-import { OrderStatus } from 'src/enums/status.enum';
+import { OrderStatus } from 'src/enums/order-status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { OrderItem } from '../orderItem/entity/orderItem.entity';
 import { User } from 'src/domains/user/entity/user.entity';
-import { PaymentMethod } from 'src/enums/payment.enum';
+
 import { Payment } from 'src/domains/payment/entity/payment.entity';
 import { Shipping } from '../shipping/shipping.entity';
 import { TimeStamp } from 'src/embedded_columns/time_stamp';
@@ -32,9 +32,8 @@ export class Order {
   })
   status!: OrderStatus;
 
-  // 주문이 배송지 FK를 소유합니다. 관계의 소유자는 1:1 관계에서 한쪽만 있어야 합니다.
   @OneToOne(() => Shipping, (shipping) => shipping.order)
-  @JoinColumn({ name: 'shipping_id' })
+  @JoinColumn()
   shipping!: Shipping;
 
   @ManyToOne(() => User, (user) => user.orders)
