@@ -10,7 +10,7 @@ import { User } from 'src/domains/user/entity/user.entity';
 import { OrderItem } from '../orderItem/entity/orderItem.entity';
 import { Product } from 'src/domains/product/entity/product.entity';
 import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
-import { OrderStatus } from 'src/enums/status.enum';
+import { OrderStatus } from 'src/enums/order-status.enum';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
@@ -42,6 +42,7 @@ export class OrderService {
         relations: {
           productSpec: {
             productView: {
+              images: true,
               product: true,
             },
           },
@@ -66,9 +67,12 @@ export class OrderService {
       const orderItems = cartItems.map((item) => {
         return manager.save(OrderItem, {
           name: item.productSpec.productView.product.name,
+          color: item.productSpec.productView.color,
+          size: item.productSpec.size,
           price: item.productSpec.productView.product.price,
-          description: item.productSpec.productView.product.description,
+          thumbnail: item.productSpec.productView.images[0].secure_url,
           quantity: item.quantity,
+          productId: item.productSpec.productView.product.id,
           order,
           productSpec: item.productSpec,
         });
@@ -117,6 +121,14 @@ export class OrderService {
       },
       relations: {
         orderItems: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        timeStamp: {
+          createdAt: true,
+        },
       },
     });
   }
