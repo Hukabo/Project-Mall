@@ -25,9 +25,6 @@ export class Payment {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ unique: true, length: 64 })
-  orderId!: string;
-
   @Column('int')
   amount!: number;
 
@@ -43,7 +40,7 @@ export class Payment {
   @OneToOne(() => Order, (order) => order.payment, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'order_id' })
+  @JoinColumn()
   order!: Order;
 
   @Column(() => TimeStamp)
