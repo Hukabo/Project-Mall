@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-import { Category } from "../_lib/types/category";
+import { Category } from "../_lib/types/category/category";
 
-export default function ListItem({ category }: { category: Category }) {
+export default function Categories({ category }: { category: Category }) {
   return (
     <>
       <li className="relative flex items-center group">
