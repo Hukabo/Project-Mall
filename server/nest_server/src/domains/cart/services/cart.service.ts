@@ -37,7 +37,7 @@ export class CartService {
   async create(
     userId: string,
     createCartItemDto: CreateCartItemDto,
-  ): Promise<CartItem[]> {
+  ): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -61,8 +61,6 @@ export class CartService {
 
       const { cartItems } = createCartItemDto;
 
-      const results: CartItem[] = [];
-
       for (const item of cartItems) {
         const spec = await queryRunner.manager.findOne(ProductSpec, {
           where: {
@@ -82,25 +80,18 @@ export class CartService {
         if (existingItem) {
           existingItem.quantity += item.quantity;
 
-          const updated = await queryRunner.manager.save(existingItem);
-
-          results.push(updated);
+          await queryRunner.manager.save(existingItem);
+        } else {
+          // 새로운 담기는 상품이라면
+          queryRunner.manager.save(CartItem, {
+            quantity: item.quantity,
+            cart,
+            productSpec: spec,
+          });
         }
-
-        // 새로운 담기는 상품이라면
-        const cartItem = queryRunner.manager.create(CartItem, {
-          quantity: item.quantity,
-          cart,
-          productSpec: spec,
-        });
-
-        results.push(cartItem);
       }
 
-      const res = await queryRunner.manager.save(CartItem, results);
       await queryRunner.commitTransaction();
-
-      return res;
     } catch (error) {
       console.error(error);
 
