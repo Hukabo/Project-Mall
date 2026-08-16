@@ -26,9 +26,7 @@ export default function ImageGallery({
           src={images[selected].secure_url}
           alt="상품 이미지"
           fill
-          priority
-          unoptimized
-          className="object-cover"
+          className="object-contain"
         />
       </div>
 
