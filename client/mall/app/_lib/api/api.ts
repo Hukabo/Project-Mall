@@ -78,6 +78,7 @@ async function request<T = unknown>(
 
     // 토큰 만료시 refresh 요청
     if (res.status === 401) {
+      console.log("401 발생 → refresh 요청");
       const refreshRes = await fetch(buildUrl("auth/refresh"), {
         method: "POST",
         credentials: "include",
@@ -87,9 +88,6 @@ async function request<T = unknown>(
         // refresh 성공 시 기존 요청 재전송
         res = await req();
       }
-
-      const data = refreshRes.json();
-      console.log("userId = ", data);
     }
 
     const contentType = res.headers.get("content-type") ?? "";
@@ -99,10 +97,8 @@ async function request<T = unknown>(
 
     if (!res.ok) {
       console.log("API ERROR DATA =", data);
-      console.log("API ERROR MESSAGE =", data?.message);
 
       const message = getErrorMessage(data);
-      console.log(message);
 
       throw new ApiError(message, res.status, data);
     }
@@ -110,7 +106,7 @@ async function request<T = unknown>(
     return data as T;
   } catch (err) {
     if (err instanceof ApiError) {
-      console.error(err);
+      // console.error(err);
       throw err;
     }
     if (err instanceof DOMException && err.name === "AbortError") {
