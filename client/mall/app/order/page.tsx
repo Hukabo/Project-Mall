@@ -1,18 +1,19 @@
 "use client";
 
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../_lib/api/api";
-import { CartItem } from "../_lib/types/cart_item";
-import { UserContext } from "../_lib/context/UserProvider";
+
+import { UserContext } from "../_lib/provider/UserProvider";
 import { useRouter } from "next/navigation";
 import {
   loadTossPayments,
   ANONYMOUS,
   TossPaymentsWidgets,
 } from "@tosspayments/tosspayments-sdk";
-import { won } from "../_lib/util/common";
+import { optimizeImage, won } from "../_lib/util/common";
 import PaymentWidgets from "../_component/Payment";
 import Image from "next/image";
+import { CartItem } from "../_lib/types/cart/cart_item";
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || "";
 
@@ -47,10 +48,19 @@ export default function OrderPage() {
   const [agree, setAgree] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const [amount, setAmount] = useState({
-    currency: "KRW",
-    value: 0,
-  });
+  // 배송비 및 할인가 적용 전 총액
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) =>
+          sum + item.productSpec.productView.product.price * item.quantity,
+        0,
+      ),
+    [cartItems],
+  );
+  const shippingCost = subtotal >= 50000 ? 0 : 3500;
+  const total = subtotal + shippingCost;
+
   const [ready, setReady] = useState(false);
   const [widgets, setWidgets] = useState<TossPaymentsWidgets | null>(null);
 
@@ -84,13 +94,15 @@ export default function OrderPage() {
   }, [user]);
 
   // 토스페이먼츠 위젯
+  const initialRef = useRef(false);
   useEffect(() => {
     async function fetchPaymentWidgets() {
-      if (!user) return;
+      if (!user || initialRef.current) return;
 
-      const tossPayment = await loadTossPayments(
-        "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm",
-      ); // test용 위젯 키 (api키랑은 별개)
+      initialRef.current = true;
+
+      const tossPayment = await loadTossPayments(clientKey); // test용 위젯 키 (api키랑은 별개)
+
       const widgets = tossPayment.widgets({
         customerKey: user.id,
       });
@@ -98,7 +110,7 @@ export default function OrderPage() {
       setWidgets(widgets);
     }
     fetchPaymentWidgets();
-  }, [clientKey]);
+  }, [user]);
 
   useEffect(() => {
     {
@@ -107,7 +119,10 @@ export default function OrderPage() {
           return;
         }
 
-        await widgets.setAmount(amount);
+        await widgets.setAmount({
+          currency: "KRW",
+          value: total,
+        });
 
         await Promise.all([
           widgets.renderPaymentMethods({
@@ -123,28 +138,7 @@ export default function OrderPage() {
       }
       renderPaymentWidgets();
     }
-  }, [widgets]);
-
-  useEffect(() => {
-    if (widgets === null) {
-      return;
-    }
-
-    widgets.setAmount(amount);
-  }, [widgets, amount]);
-
-  // 배송비 및 할인가 적용 전 총액
-  const subtotal = useMemo(
-    () =>
-      cartItems.reduce(
-        (sum, item) =>
-          sum + item.productSpec.productView.product.price * item.quantity,
-        0,
-      ),
-    [cartItems],
-  );
-  const shippingCost = subtotal >= 50000 ? 0 : 3500;
-  const total = subtotal + shippingCost;
+  }, [widgets, total]);
 
   // 배송지 작성 필드
   const setField =
@@ -167,6 +161,7 @@ export default function OrderPage() {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+
     if (!agree) {
       window.alert("주문 내용 확인 및 약관 동의가 필요해요.");
       return;
@@ -178,18 +173,15 @@ export default function OrderPage() {
         return;
       }
 
-      const { orderId, amount, orderName } = await api.post<{
+      const { orderId, orderName } = await api.post<{
         orderId: string;
         amount: number;
         orderName: string;
       }>("payments/prepare", {
         cartItemIds: cartItems.map((item) => item.id),
         shipping,
+        isDiscount: shippingCost ? false : true,
       });
-      // 결제창에 보여 주는 금액도 서버가 계산해 저장한 값만 사용
-      const paymentAmount = { currency: "KRW", value: amount };
-      setAmount(paymentAmount);
-      await widgets.setAmount(paymentAmount);
 
       await widgets.requestPayment({
         orderId: orderId,
@@ -201,7 +193,7 @@ export default function OrderPage() {
         customerMobilePhone: user.phone.replaceAll("-", ""),
       });
     } catch (err) {
-      console.error(err);
+      console.error("error = ", err);
     } finally {
       setSubmitting(false);
     }
@@ -231,22 +223,26 @@ export default function OrderPage() {
                     key={item.id}
                     className="flex items-center gap-4 border-t py-4 first:border-t-0 border-line"
                   >
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm text-xl bg-surface border border-line">
+                    <div className="overflow-hidden flex h-14 w-14 shrink-0 items-center justify-center rounded-sm text-xl bg-surface border border-line">
                       <Image
-                        width={56}
-                        height={56}
-                        src={item.productSpec.productView.images[0].secure_url}
+                        width={40}
+                        height={60}
+                        src={optimizeImage(
+                          item.productSpec.productView.images[0].secure_url,
+                          400,
+                          600,
+                        )}
                         alt={`cart item preview-${item.productSpec.productView.product.name}`}
-                        unoptimized
+                        className="object-cover"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-display text-base">
-                        {`${item.productSpec.productView.product.name} ${item.productSpec.productView.color}-${item.productSpec.size}`}
+                        {item.productSpec.productView.product.name}
                       </p>
                       <p className="text-sm text-ink-soft">
-                        {item.productSpec.productView.product.description} ·{" "}
-                        {item.quantity}개
+                        {item.productSpec.productView.color}
+                        {item.productSpec.size} · {item.quantity}개
                       </p>
                     </div>
                     <p className="font-mono text-sm">
@@ -280,7 +276,7 @@ export default function OrderPage() {
                       value={shipping.phone}
                       onChange={setField("phone")}
                       placeholder="010-1234-5678"
-                      className={`w-full border px-3 py-2.5 text-sm outline-none ${errors.name ? "border-rust" : "border-line"}`}
+                      className={`w-full border px-3 py-2.5 text-sm outline-none ${errors.phone ? "border-rust" : "border-line"}`}
                     />
                   </Field>
                   <Field label="우편번호" className="md:col-span-1">
@@ -300,7 +296,7 @@ export default function OrderPage() {
                       value={shipping.address}
                       onChange={setField("address")}
                       placeholder="서울시 종로구 자하문로 10길"
-                      className={`w-full border px-3 py-2.5 text-sm outline-none ${errors.name ? "border-rust" : "border-line"}`}
+                      className={`w-full border px-3 py-2.5 text-sm outline-none ${errors.address ? "border-rust" : "border-line"}`}
                     />
                   </Field>
                   <Field label="상세 주소" className="md:col-span-2">
@@ -368,7 +364,7 @@ export default function OrderPage() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={!ready}
+                disabled={!ready || submitting}
                 className="mt-5 w-full py-3.5 text-sm tracking-wide text-white transition hover:opacity-90 disabled:opacity-50 bg-ink"
               >
                 {submitting ? "처리 중…" : `${won(total)} 결제하기`}
