@@ -3,19 +3,16 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { api } from "../_lib/api/api";
 
-import { CartItem } from "@/app/_lib/types/cart_item";
 import { useParams, useRouter } from "next/navigation";
 import { won } from "@/app/_lib/util/common";
 import Link from "next/link";
-import { UserContext } from "../_lib/context/UserProvider";
+import { UserContext } from "../_lib/provider/UserProvider";
 import Image from "next/image";
+import { CartItem } from "../_lib/types/cart/cart_item";
 
 export default function CartPage() {
   const { user } = useContext(UserContext);
   const [items, setItems] = useState<CartItem[]>([]);
-  const [promo, setPromo] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoError, setPromoError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -71,18 +68,7 @@ export default function CartPage() {
     [items],
   );
   const shipping = subtotal === 0 ? 0 : subtotal >= 50000 ? 0 : 3500;
-  const discount = promoApplied ? Math.round(subtotal * 0.1) : 0;
-  const total = subtotal + shipping - discount;
-
-  const applyPromo = () => {
-    if (promo.trim().toUpperCase() === "TEST_COUPON") {
-      setPromoApplied(true);
-      setPromoError("");
-    } else {
-      setPromoApplied(false);
-      setPromoError("유효하지 않은 코드예요. TEST_COUPON을 입력해 보세요.");
-    }
-  };
+  const total = subtotal + shipping;
 
   return (
     <div className="min-h-screen font-body text-ink">
@@ -123,15 +109,13 @@ export default function CartPage() {
                     key={item.id}
                     className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t py-5 md:grid-cols-[64px_1fr_140px_110px_32px] border-line"
                   >
-                    <div className="col-span-3 flex h-16 w-16 items-center justify-center rounded-sm text-2xl md:col-span-1 bg-surface border border-line">
+                    <div className="relative col-span-3 flex h-16 w-16 items-center justify-center rounded-sm text-2xl md:col-span-1 bg-surface border border-line">
                       <Image
-                        width={64}
-                        height={64}
+                        fill
                         src={item.productSpec.productView.images[0].secure_url}
                         alt={`cart item preview-${item.productSpec.productView.product.name}`}
-                        unoptimized
                         loading="eager"
-                        className="h-auto object-cover"
+                        className="object-contain"
                       />
                     </div>
 
@@ -200,7 +184,7 @@ export default function CartPage() {
 
             {/* 주문 요약 — 영수증 카드 */}
             <aside className="lg:sticky lg:top-10 lg:self-start">
-              <div className="relative px-6 pb-8 pt-7 shadow-sm bg-surface">
+              <div className="relative px-6 pb-4 pt-7 shadow-sm bg-surface">
                 <p className="mb-5 font-mono text-xs tracking-widest text-moss">
                   ORDER SUMMARY
                 </p>
@@ -214,12 +198,6 @@ export default function CartPage() {
                     <dt className="text-ink-soft">배송비</dt>
                     <dd>{shipping === 0 ? "무료" : won(shipping)}</dd>
                   </div>
-                  {promoApplied && (
-                    <div className="flex justify-between text-moss">
-                      <dt>할인 (TEST_COUPON)</dt>
-                      <dd>−{won(discount)}</dd>
-                    </div>
-                  )}
                 </dl>
 
                 <div
@@ -240,40 +218,6 @@ export default function CartPage() {
                   </p>
                 )}
 
-                {/* 프로모 코드 */}
-                <div className="mt-6">
-                  <label className="mb-1.5 block font-mono text-[11px] tracking-wider text-ink-soft">
-                    할인 코드
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={promo}
-                      onChange={(e) => {
-                        setPromo(e.target.value);
-                        setPromoError("");
-                      }}
-                      placeholder="TEST_COUPON"
-                      className="w-full rounded-none border border-line px-3 py-2 text-sm outline-none focus:ring-1"
-                    />
-                    <button
-                      type="button"
-                      onClick={applyPromo}
-                      className="shrink-0 border border-ink px-4 text-sm transition hover:opacity-70"
-                    >
-                      적용
-                    </button>
-                  </div>
-                  {promoError && (
-                    <p className="mt-1.5 text-xs text-rust">{promoError}</p>
-                  )}
-                  {promoApplied && (
-                    <p className="mt-1.5 text-xs text-moss">
-                      코드가 적용됐어요.
-                    </p>
-                  )}
-                </div>
-
                 <button
                   type="button"
                   onClick={() => router.push("/order")}
@@ -282,7 +226,7 @@ export default function CartPage() {
                   주문하기 · {won(total)}
                 </button>
 
-                <p className="mt-3 text-center text-[11px] text-ink-soft">
+                <p className="mt-5 text-center text-[11px] text-ink-soft">
                   결제 시 이용약관에 동의하게 됩니다.
                 </p>
 
@@ -310,7 +254,7 @@ export default function CartPage() {
 function EmptyCart() {
   return (
     <div className="flex flex-col items-center justify-center border border-line py-24 text-center">
-      <p className="mb-3 text-4xl">🪴</p>
+      <p className="mb-3 text-4xl">🛒</p>
       <p className="font-display text-xl">장바구니가 비어 있어요</p>
       <p className="mt-1.5 text-sm" style={{ color: "var(--ink-soft)" }}>
         마음에 드는 상품을 담아보세요.
