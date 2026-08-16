@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/app/_component/Button";
-import { UserContext } from "@/app/_lib/context/UserProvider";
+import { UserContext } from "@/app/_lib/provider/UserProvider";
 import { notFound } from "next/navigation";
 import { useContext } from "react";
 
