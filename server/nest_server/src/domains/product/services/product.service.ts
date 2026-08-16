@@ -96,7 +96,7 @@ export class ProductService {
             stock: sizeStock.stock,
             state:
               sizeStock.stock === 0 ? SaleState.SOLD_OUT : SaleState.ON_SALE,
-            sku: `${name}-${variant.color}-${sizeStock.size}`.toUpperCase(),
+            sku: `${name}-${variant.color ? `${variant.color}-` : ''}${sizeStock.size}`.toUpperCase(),
             productView,
           }),
         );
@@ -171,14 +171,19 @@ export class ProductService {
   async findPage(page: number, limit: number, search?: string): Promise<{}> {
     const qb = this.productRepository
       .createQueryBuilder('product')
-      .leftJoinAndSelect('product.category', 'category');
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('category.parent', 'parent');
 
     if (search) {
       qb.where('product.name ILIKE :search', {
         search: `%${search}%`,
-      }).orWhere('category.name ILIKE :search', {
-        search: `%${search}%`,
-      });
+      })
+        .orWhere('category.name ILIKE :search', {
+          search: `%${search}%`,
+        })
+        .orWhere('parent.name ILIKE :search', {
+          serach: `%${search}%`,
+        });
     }
 
     qb.skip((page - 1) * limit)
@@ -220,8 +225,6 @@ export class ProductService {
         productView: true,
       },
     });
-
-    console.log(images);
 
     return images;
   }
