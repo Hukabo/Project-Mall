@@ -81,7 +81,7 @@ export class AuthController {
     res.cookie('accessToken', accessToken, cookieOptions);
     res.cookie('refreshToken', refreshToken, {
       ...cookieOptions,
-      maxAge: 1000 * 60 * 60 * 3,
+      maxAge: 1000 * 60 * 60 * 24,
     });
   }
 }
