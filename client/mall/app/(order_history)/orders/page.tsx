@@ -8,7 +8,7 @@ import {
   OrderStatusKeys,
   STATUS_STYLE,
 } from "@/app/_lib/types/order/order_status";
-import { transferDate, won } from "@/app/_lib/util/common";
+import { optimizeImage, transferDate, won } from "@/app/_lib/util/common";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -49,9 +49,9 @@ function OrderCard({ order }: { order: Order }) {
         {order.orderItems.slice(0, 3).map((item) => (
           <div key={item.id} className="flex items-center gap-4">
             <img
-              src={item.thumbnail}
+              src={optimizeImage(item.thumbnail, 112, 112)}
               alt={`${item.name} ${item.color} preview image`}
-              className="w-14 h-14 object-cover bg-paper"
+              className="h-14 w-14 object-contain bg-paper"
             />
             <div className="flex-1 min-w-0">
               <p className="text-sm truncate">{item.name}</p>
