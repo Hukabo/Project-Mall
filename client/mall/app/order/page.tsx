@@ -223,17 +223,17 @@ export default function OrderPage() {
                     key={item.id}
                     className="flex items-center gap-4 border-t py-4 first:border-t-0 border-line"
                   >
-                    <div className="overflow-hidden flex h-14 w-14 shrink-0 items-center justify-center rounded-sm text-xl bg-surface border border-line">
+                    <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-line bg-surface text-xl">
                       <Image
-                        width={40}
-                        height={60}
+                        fill
                         src={optimizeImage(
                           item.productSpec.productView.images[0].secure_url,
-                          400,
-                          600,
+                          112,
+                          112,
                         )}
                         alt={`cart item preview-${item.productSpec.productView.product.name}`}
-                        className="object-cover"
+                        className="object-contain"
+                        sizes="56px"
                       />
                     </div>
                     <div className="min-w-0 flex-1">

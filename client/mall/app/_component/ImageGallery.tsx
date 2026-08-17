@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { optimizeImage } from "../_lib/util/common";
 
 export default function ImageGallery({
   images,
@@ -10,7 +11,7 @@ export default function ImageGallery({
 }) {
   const [selected, setSelected] = useState(0);
 
-  if (!images) {
+  if (!images?.length) {
     return (
       <div className="w-full aspect-square bg-surface rounded-xl flex items-center justify-center text-gray-400">
         <span className="text-sm">이미지 없음</span>
@@ -23,10 +24,11 @@ export default function ImageGallery({
       {/* 대표 이미지 */}
       <div className="relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200 mb-2">
         <Image
-          src={images[selected].secure_url}
+          src={optimizeImage(images[selected].secure_url, 1000, 1000)}
           alt="상품 이미지"
           fill
           className="object-contain"
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
       </div>
 
@@ -44,14 +46,11 @@ export default function ImageGallery({
               }`}
             >
               <Image
-                src={image.secure_url.replace(
-                  "/upload/",
-                  "/upload/w_300,h_300,c_fill,q_auto,f_auto/",
-                )}
+                src={optimizeImage(image.secure_url, 150, 150)}
                 alt={`썸네일 ${i + 1}`}
                 fill
-                unoptimized
-                className="object-cover"
+                className="object-contain"
+                sizes="56px"
               />
             </button>
           ))}

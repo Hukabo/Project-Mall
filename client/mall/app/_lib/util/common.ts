@@ -9,10 +9,8 @@ export const transferDate = (date: string) => {
 };
 
 export const optimizeImage = (url: string, width: number, height: number) => {
-  const optImage = url.replace(
-    "/upload",
-    `/upload/c_fill,w_${width},h_${height}`,
+  return url.replace(
+    "/upload/",
+    `/upload/c_limit,w_${width},h_${height},q_auto,f_auto/`,
   );
-  // console.log(optImage);
-  return optImage;
 };

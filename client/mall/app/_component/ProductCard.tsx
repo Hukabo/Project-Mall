@@ -3,22 +3,19 @@ import { Product } from "../_lib/types/product/product";
 import { optimizeImage } from "../_lib/util/common";
 
 export default function ProductCard(product: Product) {
-  const thumbnail =
-    product.thumbnail.replace(
-      "/image/upload/",
-      "/image/upload/w_400,q_auto/",
-    ) ?? null;
+  const thumbnail = product.thumbnail ?? null;
 
   return (
-    <div className="w-full h-80 flex flex-col gap-2 p-3 border border-grey-dark-3 shadow-dark cursor-pointer bg-grey-light-3 transition-all duration-300 hover:-translate-y-2.5">
+    <div className="w-full h-75 flex flex-col px-3 py-1.5 border border-grey-dark-3 shadow-dark cursor-pointer bg-grey-light-3 transition-all duration-300 hover:-translate-y-2.5">
       <div className="relative w-full h-50 overflow-hidden rounded-md self-center mb-3">
         {thumbnail ? (
           <Image
-            src={optimizeImage(thumbnail, 400, 600)}
+            src={optimizeImage(thumbnail, 400, 400)}
             alt={`product preview-${product.name}`}
-            loading="eager"
+            className="object-contain rounded-sm"
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+            sizes="200px"
+            loading="lazy"
           />
         ) : (
           <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
@@ -26,7 +23,7 @@ export default function ProductCard(product: Product) {
           </div>
         )}
       </div>
-      <div className="flex-1">
+      <div className="">
         <p className="truncate font-light">{product.name}</p>
         <p>{product.price.toLocaleString()}원</p>
         <p>

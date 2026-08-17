@@ -4,7 +4,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { api } from "../_lib/api/api";
 
 import { useParams, useRouter } from "next/navigation";
-import { won } from "@/app/_lib/util/common";
+import { optimizeImage, won } from "@/app/_lib/util/common";
 import Link from "next/link";
 import { UserContext } from "../_lib/provider/UserProvider";
 import Image from "next/image";
@@ -112,10 +112,15 @@ export default function CartPage() {
                     <div className="relative col-span-3 flex h-16 w-16 items-center justify-center rounded-sm text-2xl md:col-span-1 bg-surface border border-line">
                       <Image
                         fill
-                        src={item.productSpec.productView.images[0].secure_url}
+                        src={optimizeImage(
+                          item.productSpec.productView.images[0].secure_url,
+                          128,
+                          128,
+                        )}
                         alt={`cart item preview-${item.productSpec.productView.product.name}`}
                         loading="eager"
                         className="object-contain"
+                        sizes="64px"
                       />
                     </div>
 
