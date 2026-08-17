@@ -120,7 +120,7 @@ export class OpenAiGenerateProductService {
             const result = await this.openai.images.generate({
               model: 'gpt-image-1-mini',
               prompt: prompt + variant.color + product.name,
-              size: '1024x1536',
+              size: '1024x1024',
               quality: 'medium',
             });
 
