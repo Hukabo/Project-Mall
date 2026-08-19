@@ -53,10 +53,6 @@ export default function ProductRegisterPage() {
   const [parentId, setParentId] = useState<string | null>(null);
   const [children, setChildren] = useState<Category[] | null>(null);
 
-  useEffect(() => {
-    console.log("form = ", form);
-  }, [form]);
-
   // 상위 카테고리 호출
   useEffect(() => {
     async function loadCategories() {
