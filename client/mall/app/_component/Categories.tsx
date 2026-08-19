@@ -20,7 +20,7 @@ export default function Categories({ category }: { category: Category }) {
           {category.name}
         </a>
 
-        <ul className="absolute hidden group-hover:block group-hover:opacity-100 left-full top-1 z-10 p-5 w-35 shadow-sm text-center border border-grey-light-4 bg-white text-grey-dark-2">
+        <ul className="absolute left-full top-1 z-10 hidden w-35 border border-grey-light-4 bg-white p-5 text-center text-grey-dark-2 shadow-sm group-hover:block group-hover:opacity-100">
           {category.children.map((child: Category) => (
             <li
               className="hover:text-grey-dark-1 transition-colors duration-150 py-1 border-b"
