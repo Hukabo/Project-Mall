@@ -20,4 +20,7 @@ export class Image {
     onDelete: 'CASCADE',
   })
   productView!: ProductView;
+
+  @Column({ nullable: true })
+  sortOrder!: number;
 }

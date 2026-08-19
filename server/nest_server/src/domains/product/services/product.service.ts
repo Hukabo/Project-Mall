@@ -114,6 +114,7 @@ export class ProductService {
           name: res.original_filename,
           format: res.format,
           productView: productViews[variantIndex],
+          sortOrder: i,
         });
       });
 
@@ -142,6 +143,9 @@ export class ProductService {
         },
         order: {
           productViews: {
+            images: {
+              sortOrder: 'ASC',
+            },
             productSpecs: {
               id: 'ASC',
             },
@@ -263,7 +267,7 @@ export class ProductService {
 
   async delete(id: number): Promise<string> {
     try {
-      const res = await this.productRepository.delete(id);
+      const res = await this.productRepository.softDelete(id);
 
       if (!res.affected) {
         throw new NotFoundException('the product not exists...');
