@@ -87,7 +87,7 @@ export default function ProductClient({ product }: { product: Product }) {
     }
 
     if (itemList.length === 0) {
-      alert("담긴 상품이 없습니다.");
+      alert("옵션을 선택해주세요.");
       return;
     }
 
