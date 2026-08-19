@@ -22,6 +22,7 @@ export default function ProductInputField({
         required={required}
         className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-line"
         placeholder={`예: ${placeholder}`}
+        value={form[id]}
         onChange={(e) => setForm({ ...form, [id]: e.target.value })}
       />
     </div>
