@@ -35,5 +35,9 @@ export default registerAs('database', (): TypeOrmModuleOptions => ({
     Shipping,
   ],
   synchronize: process.env.NODE_ENV !== 'production',
+  /* production 환경에서는 주석 해제 */
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
   // logging: true,
 }));
