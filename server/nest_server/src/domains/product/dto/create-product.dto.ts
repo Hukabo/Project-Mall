@@ -34,7 +34,7 @@ export const createProductSchema = z
       z.number({ required_error: '카테고리를 입력하세요.' }).positive(),
     ),
     imagesInfo: z.preprocess(
-      (value) => (Array.isArray(value) ? value : [value]),
+      (value) => (Array.isArray(value) ? value : [value]), // 이미지 index 값이 하나만 올 경우 단일 string으로 오기때문에 배열로 처리
       z.array(z.preprocess(toNumber, z.number())),
     ),
   })
