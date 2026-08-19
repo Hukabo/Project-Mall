@@ -20,7 +20,9 @@ import { UploadApiResponse } from 'cloudinary';
 
 @Injectable()
 export class OpenAiGenerateProductService {
-  private readonly openai = new OpenAI();
+  private readonly openai = new OpenAI({
+    maxRetries: 3,
+  });
 
   constructor(
     private readonly cloudinaryService: CloudinaryService,
@@ -73,76 +75,76 @@ export class OpenAiGenerateProductService {
         }),
     });
 
-    try {
-      await this.dataSource.transaction(async (manager) => {
-        for (const item of items) {
-          // 상품 정보 생성
-          const data = await this.openai.responses.parse({
-            model: 'gpt-5.6',
-            input: [
-              {
-                role: 'system',
-                content: `
-                You are AI that create product data. 
-                
-                Available categories:
-                ${categoryNames.join(', ')}
+    for (const item of items) {
+      try {
+        // 상품 정보 생성
+        const data = await this.openai.responses.parse({
+          model: 'gpt-5.6',
+          input: [
+            {
+              role: 'system',
+              content: `
+                  You are AI that create product data. 
+                  
+                  Available categories:
+                  ${categoryNames.join(', ')}
+    
+                  The categoryName must be one of the available categories.
+                  
   
-                The categoryName must be one of the available categories.
-                
-
-                `,
-              },
-              {
-                role: 'user',
-                content: `
-                다음 상품 정보를 바탕으로 상품 데이터를 생성해줘.
-  
-                상품:${item}
-              `,
-              },
-            ],
-            text: {
-              format: zodTextFormat(ProductSchema, 'product'),
+                  `,
             },
+            {
+              role: 'user',
+              content: `
+                  다음 상품 정보를 바탕으로 상품 데이터를 생성해줘.
+    
+                  상품:${item}
+                `,
+            },
+          ],
+          text: {
+            format: zodTextFormat(ProductSchema, 'product'),
+          },
+        });
+
+        if (!data.output_parsed) {
+          throw new Error('상품 정보 생성 오류');
+        }
+
+        const product = data.output_parsed;
+
+        const uploadResults: UploadApiResponse[] = [];
+
+        // 상품 이미지 생성 (Variant 당 1장씩만)
+        for (const variant of product.variants) {
+          const result = await this.openai.images.generate({
+            model: 'gpt-image-1-mini',
+            prompt: prompt + variant.color + product.name,
+            size: '1024x1024',
+            quality: 'medium',
           });
 
-          if (!data.output_parsed) {
-            throw new Error('상품 정보 생성 오류');
+          if (!result.data) {
+            throw new Error('상품 이미지 생성 오류');
           }
 
-          const product = data.output_parsed;
+          const image_base64 = result.data[0].b64_json;
 
-          const uploadResults: UploadApiResponse[] = [];
-
-          // 상품 이미지 생성 (Variant 당 1장씩만)
-          for (const variant of product.variants) {
-            const result = await this.openai.images.generate({
-              model: 'gpt-image-1-mini',
-              prompt: prompt + variant.color + product.name,
-              size: '1024x1024',
-              quality: 'medium',
-            });
-
-            if (!result.data) {
-              throw new Error('상품 이미지 생성 오류');
-            }
-
-            const image_base64 = result.data[0].b64_json;
-
-            if (!image_base64) {
-              throw new Error('이미지 데이터가 없습니다.');
-            }
-            const image_bytes = Buffer.from(image_base64, 'base64');
-
-            const uploadResult = await this.cloudinaryService.uploadBuffer(
-              image_bytes,
-              product.name,
-            );
-
-            uploadResults.push(uploadResult);
+          if (!image_base64) {
+            throw new Error('이미지 데이터가 없습니다.');
           }
+          const image_bytes = Buffer.from(image_base64, 'base64');
 
+          const uploadResult = await this.cloudinaryService.uploadBuffer(
+            image_bytes,
+            product.name,
+          );
+
+          uploadResults.push(uploadResult);
+        }
+
+        await this.dataSource.transaction(async (manager) => {
           // Product 생성
           const createdProduct = await manager.save(Product, {
             name: product.name,
@@ -183,11 +185,11 @@ export class OpenAiGenerateProductService {
               });
             }
           }
-          console.log(`${item} 생성 완료`);
-        }
-      });
-    } catch (err) {
-      console.error(err);
+        });
+        console.log(`${item} 생성 완료`);
+      } catch (err) {
+        console.error(`${item} 생성 실패: ${err}`);
+      }
     }
   }
 }
