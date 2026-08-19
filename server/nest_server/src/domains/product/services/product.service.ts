@@ -90,16 +90,18 @@ export class ProductService {
         await queryRunner.manager.save(productView);
 
         // ProductSpec 생성
-        const specs = variant.sizeStocks.map((sizeStock) =>
-          queryRunner.manager.create(ProductSpec, {
-            size: sizeStock.size,
-            stock: sizeStock.stock,
-            state:
-              sizeStock.stock === 0 ? SaleState.SOLD_OUT : SaleState.ON_SALE,
-            sku: `${name}-${variant.color ? `${variant.color}-` : ''}${sizeStock.size}`.toUpperCase(),
-            productView,
-          }),
-        );
+        const specs = variant.sizeStocks
+          .filter((sizeStock) => sizeStock.stock > 0)
+          .map((sizeStock) => {
+            return queryRunner.manager.create(ProductSpec, {
+              size: sizeStock.size,
+              stock: sizeStock.stock,
+              state:
+                sizeStock.stock === 0 ? SaleState.SOLD_OUT : SaleState.ON_SALE,
+              sku: `${name}-${variant.color ? `${variant.color}-` : ''}${sizeStock.size}`.toUpperCase(),
+              productView,
+            });
+          });
 
         await queryRunner.manager.save(specs);
       }
