@@ -4,9 +4,9 @@
 
 ---
 
-## 배포 링크
+## 🔗 배포 링크
 
-- **🔗 [https://mall.auction](https://mall.auction)**
+- **[https://mall.auction](https://mall.auction)**
 + 게스트 ID 및 Password
   ```
     admin@admin.com
