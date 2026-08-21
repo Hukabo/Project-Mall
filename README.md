@@ -4,6 +4,15 @@
 
 ---
 
+## 📖 목차
+- [배포 링크](#-배포-링크)
+- [기술 스택](#️-사용-기술-스택)
+- [ERD](#erd)
+- [주요 기능](#주요-기능)
+- [트러블슈팅](#트러블-슈팅)
+
+---
+
 ## 🔗 배포 링크
 
 - **[https://mall.auction](https://mall.auction)**
@@ -46,6 +55,13 @@
 - Postman
 
 ---
+
+## 시스템 아키텍처
+<img width="1240" height="509" alt="시스템 아키텍처" src="https://github.com/user-attachments/assets/c9272618-46bc-420c-860e-729c7426b28c" />
+
+
+---
+
 ## ERD
 <img width="1022" height="605" alt="ERD" src="https://github.com/user-attachments/assets/3999d9f5-70e6-4f36-ae39-ecebf40670ad" />
 
@@ -244,9 +260,12 @@ const initialRef = useRef(false);
 
 ----
 
-## 시스템 아키텍처
-<img width="1240" height="509" alt="시스템 아키텍처" src="https://github.com/user-attachments/assets/c9272618-46bc-420c-860e-729c7426b28c" />
-
-
+## 🔨 향후 개선 계획
+- [ ] 리뷰/평점 기능
+- [ ] 검색 성능 최적화 (인덱싱)
+- [ ] 관리자 대시보드
+- [ ] 테스트 코드 작성
+- [ ] 부하 테스트
+- [ ] CI/CD
 
 
