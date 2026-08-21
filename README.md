@@ -223,3 +223,25 @@ const initialRef = useRef(false);
 ```
 
 'useRef'로 초기화 여부를 추적하여 두 번째 요청은 무시하도록 가드 설정함. 
+
+## 주요 기능 실사용 이미지
+
+### 회원가입 기능
+<img width="800" height="500" alt="회원가입" src="https://github.com/user-attachments/assets/c139c7cc-d596-4485-80a6-dad7cfb05006" />
+
+### 상품 검색 기능
+<img width="800" height="500" alt="상품 검색" src="https://github.com/user-attachments/assets/105114b0-b316-4c75-a4f5-cb16fe21c078" />
+
+### 상품 상세 페이지
+<img width="800" height="500" alt="상품 상세" src="https://github.com/user-attachments/assets/031cd2f6-9ac4-49c1-9ead-0645383e07de" />
+
+### 장바구니 기능
+<img width="800" height="500" alt="장바구니 기능" src="https://github.com/user-attachments/assets/178fe538-a61f-48fe-af01-3f22eb9237b3" />
+
+### 결제 및 주문 기능
+<img width="800" height="500" alt="결제 기능" src="https://github.com/user-attachments/assets/e0c97042-73e5-4896-8f86-5f6c62bc40d8" />
+
+<img width="800" height="500" alt="주문 기능" src="https://github.com/user-attachments/assets/cadeb00e-38e3-49ff-8056-c64b0be97956" />
+
+
+
