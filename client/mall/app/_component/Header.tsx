@@ -8,12 +8,16 @@ import SearchBar from "./SearchBar";
 import { useMobileSidebar } from "./MobileSidebarProvider";
 
 export default function Header() {
-  const { user, logout } = useContext(UserContext);
+  const { user, refetchUser, logout } = useContext(UserContext);
   const { open } = useMobileSidebar();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!user) {
+      refetchUser();
+    }
+
     const closeUserMenu = (event: MouseEvent) => {
       if (!userMenuRef.current?.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
@@ -65,12 +69,7 @@ export default function Header() {
               aria-controls="user-menu"
               className="rounded-full p-1 transition-colors hover:bg-grey-light-2 focus:outline-none focus:ring-2 focus:ring-moss"
             >
-              <Image
-                src="/svg/user-circle.svg"
-                alt=""
-                width={30}
-                height={30}
-              />
+              <Image src="/svg/user-circle.svg" alt="" width={30} height={30} />
             </button>
 
             <div
@@ -106,6 +105,16 @@ export default function Header() {
               >
                 주문내역
               </Link>
+              {user.roles.includes("ADMIN") && (
+                <Link
+                  href="/product/register"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="block px-4 py-2 hover:bg-grey-light-2 hover:text-moss"
+                >
+                  상품등록
+                </Link>
+              )}
+
               <button
                 type="button"
                 onClick={async () => {
