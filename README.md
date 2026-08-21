@@ -243,5 +243,11 @@ const initialRef = useRef(false);
 
 <img width="800" height="500" alt="주문 기능" src="https://github.com/user-attachments/assets/cadeb00e-38e3-49ff-8056-c64b0be97956" />
 
+----
+
+## 시스템 아키텍처
+<img width="1240" height="509" alt="시스템 아키텍처" src="https://github.com/user-attachments/assets/c9272618-46bc-420c-860e-729c7426b28c" />
+
+
 
 
