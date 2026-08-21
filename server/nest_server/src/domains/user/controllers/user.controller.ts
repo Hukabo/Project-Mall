@@ -66,17 +66,17 @@ export class UserController {
     return res;
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body(new ValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    const res = this.userService.update(id, updateUserDto);
+  // @Patch(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body(new ValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto,
+  // ): Promise<User> {
+  //   const res = this.userService.update(id, updateUserDto);
 
-    return res;
-  }
+  //   return res;
+  // }
 
-  @Roles([Role.ADMIN])
+  @Roles([Role.USER])
   @Delete(':id')
   delete(@Param('id') id: string): Promise<string> {
     return this.userService.delete(id);
