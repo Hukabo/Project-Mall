@@ -27,6 +27,8 @@ export default function ImageGallery({
           src={optimizeImage(images[selected].secure_url, 1000, 1000)}
           alt="상품 이미지"
           fill
+          loading="eager"
+          priority
           className="object-contain"
           sizes="(max-width: 768px) 100vw, 50vw"
         />
