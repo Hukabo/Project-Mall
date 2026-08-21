@@ -1,26 +1,33 @@
 "use client";
-import { error } from "console";
-import { redirect } from "next/dist/server/api-utils";
-import Image from "next/image";
-import { SyntheticEvent, useState } from "react";
+
+import { SyntheticEvent, useEffect, useState } from "react";
 import { api } from "../_lib/api/api";
-import { User } from "../_lib/types/user/user";
 import ShippingAddressForm from "../_component/ShippingAdressForm";
+import { useRouter } from "next/navigation";
+
+export interface JoinForm {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+  birth: string;
+  address: AddressForm;
+  phone: string;
+}
 
 export default function JoinPage() {
-  const [address, setAddress] = useState<AddressForm>({
-    zonecode: "",
-    roadAddress: "",
-    detailAddress: "",
-  });
-
-  const [form, setForm] = useState({
+  const router = useRouter();
+  const [form, setForm] = useState<JoinForm>({
     email: "",
     username: "",
     password: "",
     confirmPassword: "",
     birth: "",
-    address,
+    address: {
+      zonecode: "",
+      roadAddress: "",
+      detailAddress: "",
+    } as AddressForm,
     phone: "",
   });
 
@@ -32,13 +39,25 @@ export default function JoinPage() {
       return;
     }
 
-    const res = await api.post<{
-      id: number;
-      username: string;
-      roles: string[];
-    }>("users", form);
+    try {
+      const res = await api.post<{
+        id: number;
+        username: string;
+        roles: string[];
+      }>("users", form);
 
-    alert(`${res.username} 회원가입 완료`);
+      alert(`환영합니다 ${res.username}님`);
+
+      await api.post("auth/login", {
+        email: form.email,
+        password: form.password,
+      });
+
+      router.push("/");
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   return (
@@ -116,7 +135,7 @@ export default function JoinPage() {
             }}
           />
 
-          <ShippingAddressForm address={address} setAddress={setAddress} />
+          <ShippingAddressForm address={form.address} setForm={setForm} />
 
           <label htmlFor="phone">연락처: {""}</label>
           <input

@@ -2,13 +2,14 @@
 
 import { Dispatch, SetStateAction, useState } from "react";
 import DaumPostcodeModal from "./DaumPostcodeModal";
+import { JoinForm } from "../join/page";
 
 export default function ShippingAddressForm({
   address,
-  setAddress,
+  setForm,
 }: {
   address: AddressForm;
-  setAddress: Dispatch<SetStateAction<AddressForm>>;
+  setForm: Dispatch<SetStateAction<JoinForm>>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -32,10 +33,13 @@ export default function ShippingAddressForm({
         {isOpen && (
           <DaumPostcodeModal
             onComplete={(data) =>
-              setAddress((prev) => ({
+              setForm((prev) => ({
                 ...prev,
-                zonecode: data.zonecode,
-                roadAddress: data.roadAddress,
+                address: {
+                  ...prev.address,
+                  zonecode: data.zonecode,
+                  roadAddress: data.roadAddress,
+                },
               }))
             }
             onClose={() => setIsOpen(false)}
@@ -55,7 +59,10 @@ export default function ShippingAddressForm({
         type="text"
         value={address.detailAddress}
         onChange={(e) =>
-          setAddress((prev) => ({ ...prev, detailAddress: e.target.value }))
+          setForm((prev) => ({
+            ...prev,
+            address: { ...prev.address, detailAddress: e.target.value },
+          }))
         }
         placeholder="상세 주소 입력"
         className="border border-line rounded px-3 py-1.5 focus:outline-none"

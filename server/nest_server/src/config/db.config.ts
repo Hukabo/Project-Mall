@@ -12,6 +12,7 @@ import { Shipping } from 'src/domains/order/shipping/shipping.entity';
 import { Image } from 'src/domains/image/entity/image.entity';
 import { ProductView } from 'src/domains/product/entity/productView.entity';
 import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
+import { Address } from 'src/domains/user/address/entity/address.entity';
 
 export default registerAs('database', (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -33,16 +34,17 @@ export default registerAs('database', (): TypeOrmModuleOptions => ({
     OrderItem,
     Payment,
     Shipping,
+    Address,
   ],
   synchronize: process.env.NODE_ENV !== 'production',
   /* 개발 환경에서는 ssl 주석 처리 */
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  extra: {
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  },
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
+  // extra: {
+  //   ssl: {
+  //     rejectUnauthorized: false,
+  //   },
+  // },
   // logging: true,
 }));

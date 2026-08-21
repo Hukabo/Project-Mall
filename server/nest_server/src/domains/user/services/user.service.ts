@@ -14,6 +14,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { Cart } from 'src/domains/cart/entity/cart.entity';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseUserDto } from '../dto/response-user.dto';
+import { Address } from '../address/entity/address.entity';
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,9 @@ export class UserService {
 
     @InjectRepository(Cart)
     private cartRepository: Repository<Cart>,
+
+    @InjectRepository(Address)
+    private addressRepository: Repository<Address>,
   ) {}
 
   async updateHashedRefreshToken(userId: string, hashedRefreshToken: any) {
@@ -34,6 +38,8 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     try {
+      const { address: addressDto, ...restCreateUserDto } = createUserDto;
+
       const existingUser = await this.userRepository.findOneBy({
         email: createUserDto.email,
       });
@@ -42,9 +48,12 @@ export class UserService {
         throw new ConflictException('the user is already exists...');
       }
 
-      const user = this.userRepository.create(createUserDto);
+      const user = this.userRepository.create(restCreateUserDto);
       const cart = this.cartRepository.create({ user });
+      const address = this.addressRepository.create(addressDto);
+
       user.cart = cart;
+      user.address = address;
 
       const savedUser = await this.userRepository.save(user);
       return new ResponseUserDto(savedUser);
@@ -82,6 +91,7 @@ export class UserService {
         },
         relations: {
           cart: true,
+          address: true,
         },
         select: {
           password: false,
@@ -128,20 +138,20 @@ export class UserService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const { username, password, address } = updateUserDto;
+  // async update(id: string, updateUserDto: UpdateUserDto) {
+  //   const { username, password, address } = updateUserDto;
 
-    const user = await this.userRepository.findOneBy({ id });
+  //   const user = await this.userRepository.findOneBy({ id });
 
-    if (!user) {
-      throw new NotFoundException('the user not exists...');
-    }
-    user.username = username;
-    user.password = password;
-    user.address = address;
+  //   if (!user) {
+  //     throw new NotFoundException('the user not exists...');
+  //   }
+  //   user.username = username;
+  //   user.password = password;
+  //   user.address = address;
 
-    return await this.userRepository.save(user);
-  }
+  //   return await this.userRepository.save(user);
+  // }
 
   async delete(id: string): Promise<string> {
     try {

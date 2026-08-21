@@ -13,6 +13,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { Address } from '../address/entity/address.entity';
 
 @Entity('users')
 export class User {
@@ -31,8 +33,11 @@ export class User {
   @Column()
   birth!: string;
 
-  @Column()
-  address!: string;
+  @OneToOne(() => Address, (address) => address.user, {
+    cascade: true,
+  })
+  @JoinColumn()
+  address!: Address;
 
   @Column()
   phone!: string;
@@ -48,12 +53,6 @@ export class User {
   @Column({ nullable: true })
   hashedRefreshToken!: string;
 
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
-
   @OneToOne(() => Cart, (cart) => cart.user, {
     cascade: true,
   })
@@ -62,6 +61,9 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders!: Order[];
+
+  @Column(() => TimeStamp)
+  timeStamp!: TimeStamp;
 
   @BeforeInsert()
   async hashPassword() {

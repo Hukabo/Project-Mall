@@ -17,16 +17,11 @@ export const createUserSchema = z
     confirmPassword: z.string(),
     username: z.string().max(8, '유저이름은 최대 8자까지 가능합니다.'),
     birth: z.string(),
-    address: z.string(),
-    roles: z
-      .array(z.nativeEnum(Role))
-      .min(1)
-      .refine((roles) => new Set(roles).size === roles.length, {
-        message: 'roles have a duplicated value.',
-      })
-      .refine((roles) => roles.includes(Role.USER), {
-        message: "roles must have 'USER' role",
-      }),
+    address: z.object({
+      zonecode: z.string().min(1, '우편번호가 누락되었습니다.'),
+      roadAddress: z.string().min(1, '도로명 주소가 누락되었습니다.'),
+      detailAddress: z.string().min(1, '상세주소가 누락되었습니다.'),
+    }),
     phone: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

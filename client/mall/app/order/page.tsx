@@ -77,9 +77,9 @@ export default function OrderPage() {
     setShipping({
       name: user.username,
       phone: user.phone,
-      zipcode: "",
-      address: user.address,
-      addressDetail: "",
+      zipcode: user.address.zonecode ?? "",
+      address: user.address.roadAddress ?? "",
+      addressDetail: user.address.detailAddress ?? "",
       memo: "",
     });
 
@@ -112,32 +112,47 @@ export default function OrderPage() {
     fetchPaymentWidgets();
   }, [user]);
 
+  const widgetsRenderRef = useRef(false);
   useEffect(() => {
-    {
-      async function renderPaymentWidgets() {
-        if (widgets === null) {
-          return;
-        }
-
-        await widgets.setAmount({
-          currency: "KRW",
-          value: total,
-        });
-
-        await Promise.all([
-          widgets.renderPaymentMethods({
-            selector: "#payment-method",
-            variantKey: "DEFAULT",
-          }),
-          widgets.renderAgreement({
-            selector: "#agreement",
-            variantKey: "AGREEMENT",
-          }),
-        ]);
-        setReady(true);
+    async function renderPaymentWidgets() {
+      if (widgets === null || widgetsRenderRef.current) {
+        return;
       }
-      renderPaymentWidgets();
+
+      widgetsRenderRef.current = true;
+
+      await widgets.setAmount({
+        currency: "KRW",
+        value: total,
+      });
+
+      await Promise.all([
+        widgets.renderPaymentMethods({
+          selector: "#payment-method",
+          variantKey: "DEFAULT",
+        }),
+        widgets.renderAgreement({
+          selector: "#agreement",
+          variantKey: "AGREEMENT",
+        }),
+      ]);
+      setReady(true);
     }
+    renderPaymentWidgets();
+  }, [widgets]);
+
+  useEffect(() => {
+    async function setAmountWidgets() {
+      if (!widgets) {
+        return;
+      }
+
+      await widgets.setAmount({
+        currency: "KRW",
+        value: total,
+      });
+    }
+    setAmountWidgets();
   }, [widgets, total]);
 
   // 배송지 작성 필드

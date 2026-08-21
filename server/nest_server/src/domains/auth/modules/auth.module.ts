@@ -16,10 +16,11 @@ import { RefreshJwtStrategy } from '../strategies/refresh.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/roles.guard';
+import { Address } from 'src/domains/user/address/entity/address.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Cart]),
+    TypeOrmModule.forFeature([User, Cart, Address]),
     JwtModule.registerAsync(jwtConfig.asProvider()), // JwtService 생성, secret, expiresIn 설정
     ConfigModule.forFeature(jwtConfig), // jwtConfig 주입
     ConfigModule.forFeature(refreshJwtConfig),
