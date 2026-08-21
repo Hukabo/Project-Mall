@@ -41,13 +41,23 @@ const INITIAL_FORM = {
   categoryId: "",
 };
 
+function createInitialForm() {
+  return {
+    name: "",
+    price: 0,
+    description: "",
+    variants: [createEmptyVariant()],
+    categoryId: "",
+  };
+}
+
 export interface VariantImage {
   file: File;
   previewUrl: string;
 }
 
 export default function ProductRegisterPage() {
-  const [form, setForm] = useState<CreateProductForm>(INITIAL_FORM);
+  const [form, setForm] = useState<CreateProductForm>(createInitialForm());
 
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [parentId, setParentId] = useState<string | null>(null);
@@ -212,8 +222,14 @@ export default function ProductRegisterPage() {
       }
     });
 
-    const res = await api.post("product", formData);
-    console.log(res);
+    try {
+      await api.post("product", formData);
+      alert("상품이 등록되었습니다.");
+      setForm(createInitialForm());
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   return (
@@ -245,7 +261,7 @@ export default function ProductRegisterPage() {
                     id={"name"}
                     text={"상품명"}
                     subText={"상품명을 입력해주세요."}
-                    placeholder={"티니핑"}
+                    placeholder={"오버핏 스프라이트 셔츠"}
                     required={true}
                   />
 
@@ -302,6 +318,7 @@ export default function ProductRegisterPage() {
                           name="children"
                           id="children"
                           className="block mt-2 bg-white p-2 w-2/3 rounded-sm focus:outline-none border border-line"
+                          value={form.categoryId}
                           onChange={(e) =>
                             setForm((prev) => ({
                               ...prev,
