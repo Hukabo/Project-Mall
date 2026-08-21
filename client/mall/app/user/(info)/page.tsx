@@ -72,7 +72,7 @@ export default function UserInfoPage() {
                   <input
                     type="address"
                     className="p-1 pl-2 bg-white rounded-sm disabled:text-gray-500 border border-line"
-                    value={user.address}
+                    // value={user.address}
                     disabled
                   />
                 </div>
