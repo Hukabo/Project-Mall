@@ -7,10 +7,9 @@
 ## 🔗 배포 링크
 
 - **[https://mall.auction](https://mall.auction)**
-+ 어드민 ID 및 Password
++ 게스트 ID 및 Password
   ```
-    admin@admin.com
-    123123123a!
+    
   ```
 ---
 
