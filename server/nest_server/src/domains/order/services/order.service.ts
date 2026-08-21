@@ -118,6 +118,7 @@ export class OrderService {
     return this.orderRepository.find({
       where: {
         user: { id: userId },
+        status: OrderStatus.PAID,
       },
       relations: {
         orderItems: true,
