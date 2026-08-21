@@ -194,7 +194,7 @@ export class ProductService {
 
     qb.skip((page - 1) * limit)
       .take(limit)
-      .orderBy('product.id', 'DESC');
+      .orderBy('product.id', 'ASC');
 
     const [products, total] = await qb.getManyAndCount();
 
