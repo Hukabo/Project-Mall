@@ -1,5 +1,5 @@
 import z from 'zod/v3';
-import { shippingSchema } from '../shipping/shipping.dto';
+import { shippingSchema } from '../shipping/dto/shipping.dto';
 
 export const createOrderSchema = z
   .object({

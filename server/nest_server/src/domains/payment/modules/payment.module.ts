@@ -5,7 +5,7 @@ import { PaymentController } from '../controllers/payment.controller';
 import { Payment } from '../entity/payment.entity';
 import { PaymentService } from '../services/payment.service';
 import { Order } from 'src/domains/order/entity/order.entity';
-import { Shipping } from 'src/domains/order/shipping/shipping.entity';
+import { Shipping } from 'src/domains/order/shipping/entity/shipping.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Payment, CartItem, Order, Shipping])],
   controllers: [PaymentController],

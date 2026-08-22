@@ -13,7 +13,7 @@ import { ConfirmPaymentDto } from '../dto/confirm-payment.dto';
 import { PreparePaymentDto } from '../dto/prepare-payment.dto';
 import { Payment, PaymentStatus } from '../entity/payment.entity';
 import { Order } from 'src/domains/order/entity/order.entity';
-import { Shipping } from 'src/domains/order/shipping/shipping.entity';
+import { Shipping } from 'src/domains/order/shipping/entity/shipping.entity';
 import { InternalServerError } from 'src/errors/internal-server.error';
 import { OrderStatus } from 'src/enums/order-status.enum';
 
