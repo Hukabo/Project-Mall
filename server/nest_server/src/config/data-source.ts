@@ -1,7 +1,10 @@
 import { DataSource } from 'typeorm';
 import { join } from 'path';
+import * as dotenv from 'dotenv';
 
-const AppdataSource = new DataSource({
+dotenv.config();
+
+export const AppdataSource = new DataSource({
   type: 'postgres',
   host: process.env.DATABASE_HOST,
   port: parseInt(process.env.DATABASE_PORT!, 10) || 5432,
