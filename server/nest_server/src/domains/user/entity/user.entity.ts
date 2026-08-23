@@ -31,12 +31,6 @@ export class User {
   @Column()
   birth!: string;
 
-  @OneToOne(() => Address, (address) => address.user, {
-    cascade: true,
-  })
-  @JoinColumn()
-  address!: Address;
-
   @Column()
   phone!: string;
 
@@ -50,6 +44,12 @@ export class User {
 
   @Column({ nullable: true })
   hashedRefreshToken!: string;
+
+  @OneToOne(() => Address, (address) => address.user, {
+    cascade: true,
+  })
+  @JoinColumn()
+  address!: Address;
 
   @OneToOne(() => Cart, (cart) => cart.user, {
     cascade: true,
