@@ -1,19 +1,17 @@
-import { Cart } from 'src/domains/cart/entity/cart.entity';
-import { Order } from 'src/domains/order/entity/order.entity';
-import { Role } from 'src/enums/role.enum';
+import { Cart } from '../../cart/entity/cart.entity';
+import { Order } from '../../order/entity/order.entity';
+import { Role } from '../../../enums/role.enum';
 import * as bcrypt from 'bcrypt';
 import {
   BeforeInsert,
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { TimeStamp } from '../../../embedded_columns/time_stamp';
 import { Address } from '../address/entity/address.entity';
 
 @Entity('users')

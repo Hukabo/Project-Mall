@@ -1,14 +1,7 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from '../../entity/order.entity';
-import { Product } from 'src/domains/product/entity/product.entity';
-import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
-import { Size } from 'src/enums/size.enum';
+import { ProductSpec } from '../../../product/entity/productSpec.entity';
+import { Size } from '../../../../enums/size.enum';
 
 @Entity('order_item')
 export class OrderItem {

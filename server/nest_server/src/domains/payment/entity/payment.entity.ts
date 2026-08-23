@@ -1,16 +1,14 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-import { User } from 'src/domains/user/entity/user.entity';
-import { Order } from 'src/domains/order/entity/order.entity';
-import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { User } from '../../user/entity/user.entity';
+import { Order } from '../..//order/entity/order.entity';
+import { TimeStamp } from '../../../embedded_columns/time_stamp';
 
 export enum PaymentStatus {
   PENDING = 'PENDING',

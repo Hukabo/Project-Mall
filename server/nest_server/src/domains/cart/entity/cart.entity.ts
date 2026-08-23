@@ -1,5 +1,5 @@
-import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
-import { User } from 'src/domains/user/entity/user.entity';
+import { CartItem } from '../../cart/cart_item/entity/cartItem.entity';
+import { User } from '../../user/entity/user.entity';
 import {
   Column,
   Entity,

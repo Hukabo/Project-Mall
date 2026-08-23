@@ -1,21 +1,19 @@
-import { OrderStatus } from 'src/enums/order-status.enum';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { OrderItem } from '../orderItem/entity/orderItem.entity';
-import { User } from 'src/domains/user/entity/user.entity';
+import { User } from '../../user/entity/user.entity';
 
-import { Payment } from 'src/domains/payment/entity/payment.entity';
+import { Payment } from '../../payment/entity/payment.entity';
 import { Shipping } from '../shipping/entity/shipping.entity';
-import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { TimeStamp } from '../../../embedded_columns/time_stamp';
+import { OrderStatus } from '../../../enums/order-status.enum';
 
 @Entity('orders')
 export class Order {

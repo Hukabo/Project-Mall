@@ -1,14 +1,12 @@
-import { Product } from 'src/domains/product/entity/product.entity';
-import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { Product } from '../../product/entity/product.entity';
+import { TimeStamp } from '../../../embedded_columns/time_stamp';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('category')

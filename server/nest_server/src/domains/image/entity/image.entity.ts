@@ -1,5 +1,4 @@
-import { Product } from 'src/domains/product/entity/product.entity';
-import { ProductView } from 'src/domains/product/entity/productView.entity';
+import { ProductView } from '../../product/entity/productView.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity()

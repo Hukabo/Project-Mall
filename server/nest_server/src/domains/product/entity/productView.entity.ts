@@ -1,18 +1,15 @@
-import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
-import { Image } from 'src/domains/image/entity/image.entity';
-import { OrderItem } from 'src/domains/order/orderItem/entity/orderItem.entity';
+import { Image } from '../../image/entity/image.entity';
+
 import {
   Column,
-  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { ProductSpec } from './productSpec.entity';
-import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { TimeStamp } from '../../../embedded_columns/time_stamp';
 
 @Entity()
 export class ProductView {

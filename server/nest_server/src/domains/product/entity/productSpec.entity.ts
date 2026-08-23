@@ -1,18 +1,16 @@
-import { SaleState } from 'src/enums/saleState.enum';
-import { Size } from 'src/enums/size.enum';
+import { SaleState } from '../../../enums/saleState.enum';
+import { Size } from '../../../enums/size.enum';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { ProductView } from './productView.entity';
-import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
-import { OrderItem } from 'src/domains/order/orderItem/entity/orderItem.entity';
-import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { CartItem } from '../../cart/cart_item/entity/cartItem.entity';
+import { OrderItem } from '../../order/orderItem/entity/orderItem.entity';
+import { TimeStamp } from '../../../embedded_columns/time_stamp';
 
 @Entity()
 export class ProductSpec {

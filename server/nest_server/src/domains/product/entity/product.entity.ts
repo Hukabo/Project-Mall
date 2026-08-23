@@ -1,16 +1,13 @@
-import { Category } from 'src/domains/category/entity/category.entity';
+import { Category } from '../../category/entity/category.entity';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { ProductView } from './productView.entity';
-import { TimeStamp } from 'src/embedded_columns/time_stamp';
+import { TimeStamp } from '../../../embedded_columns/time_stamp';
 
 @Entity('product')
 export class Product {
