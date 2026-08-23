@@ -13,13 +13,13 @@ export default registerAs('database', (): TypeOrmModuleOptions => ({
   synchronize: false,
 
   /* 개발 환경에서는 ssl 주석 처리 */
-  // ssl: {
-  //   rejectUnauthorized: false,
-  // },
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
-  // },
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
+  extra:
+    process.env.NODE_ENV === 'production'
+      ? { ssl: { rejectUnauthorized: false } }
+      : {},
   // logging: true,
 }));
