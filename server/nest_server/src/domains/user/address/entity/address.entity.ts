@@ -23,8 +23,9 @@ export class Address {
   detailAddress!: string;
 
   @OneToOne(() => User, (user) => user.address, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
+  @JoinColumn()
   user!: User;
 
   @Column(() => TimeStamp)

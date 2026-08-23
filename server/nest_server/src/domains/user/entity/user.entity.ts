@@ -46,9 +46,8 @@ export class User {
   hashedRefreshToken!: string;
 
   @OneToOne(() => Address, (address) => address.user, {
-    cascade: true,
+    cascade: ['insert', 'update'],
   })
-  @JoinColumn()
   address!: Address;
 
   @OneToOne(() => Cart, (cart) => cart.user, {
