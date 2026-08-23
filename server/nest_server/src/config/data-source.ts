@@ -14,4 +14,12 @@ export const AppdataSource = new DataSource({
   entities: [join(__dirname, '..', '/domains/**/entity/*.entity{.js,.ts}')],
   synchronize: false,
   migrations: [join(__dirname, '..', '/migrations/**/*{.js,.ts}')],
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
 });
