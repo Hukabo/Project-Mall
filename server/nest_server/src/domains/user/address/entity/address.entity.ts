@@ -1,5 +1,11 @@
 import { TimeStamp } from '../../../../embedded_columns/time_stamp';
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../entity/user.entity';
 
 @Entity()
@@ -16,7 +22,9 @@ export class Address {
   @Column()
   detailAddress!: string;
 
-  @OneToOne(() => User, (user) => user.address)
+  @OneToOne(() => User, (user) => user.address, {
+    onDelete: 'SET NULL',
+  })
   user!: User;
 
   @Column(() => TimeStamp)
