@@ -17,7 +17,6 @@ export enum PaymentStatus {
   CANCELED = 'CANCELED',
 }
 
-/** 결제창을 열기 전에 만든 서버 기준 결제 정보입니다. */
 @Entity('payments')
 export class Payment {
   @PrimaryGeneratedColumn()
@@ -31,9 +30,6 @@ export class Payment {
 
   @Column({ type: 'varchar', nullable: true, length: 200 })
   paymentKey!: string | null;
-
-  @ManyToOne(() => User)
-  user!: User;
 
   @OneToOne(() => Order, (order) => order.payment, {
     onDelete: 'CASCADE',
