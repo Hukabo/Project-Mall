@@ -14,12 +14,12 @@ export const AppdataSource = new DataSource({
   entities: [join(__dirname, '..', '/domains/**/entity/*.entity{.js,.ts}')],
   synchronize: false,
   migrations: [join(__dirname, '..', '/migrations/**/*{.js,.ts}')],
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  extra: {
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  },
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
+  extra:
+    process.env.NODE_ENV === 'production'
+      ? { ssl: { rejectUnauthorized: false } }
+      : {},
 });
