@@ -10,7 +10,7 @@ export const shippingSchema = z.object({
       /^01[0-9]-?\d{3,4}-?\d{4}$/,
       '옮바른 형식의 전화번호가 아닙니다. 예) 010-1234-1234, 010-123-1234',
     ),
-  zipcode: z.preprocess((value: unknown) => Number(value), z.number(), {
+  zonecode: z.preprocess((value: unknown) => Number(value), z.number(), {
     required_error: '잘못된 우편번호 입니다.',
   }),
   address: z.string({ required_error: '배송지가 올바르지 않습니다.' }),

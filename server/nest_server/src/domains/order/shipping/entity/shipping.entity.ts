@@ -19,7 +19,7 @@ export class Shipping {
   addressDetail!: string;
 
   @Column()
-  zipcode!: number;
+  zonecode!: number;
 
   @Column()
   memo!: string;

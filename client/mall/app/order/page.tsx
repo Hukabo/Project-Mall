@@ -7,7 +7,6 @@ import { UserContext } from "../_lib/provider/UserProvider";
 import { useRouter } from "next/navigation";
 import {
   loadTossPayments,
-  ANONYMOUS,
   TossPaymentsWidgets,
 } from "@tosspayments/tosspayments-sdk";
 import { optimizeImage, won } from "../_lib/util/common";
@@ -20,7 +19,7 @@ const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || "";
 const INITIAL_FORM: FormState = {
   name: "",
   phone: "",
-  zipcode: "",
+  zonecode: "",
   address: "",
   addressDetail: "",
   memo: "",
@@ -29,7 +28,7 @@ const INITIAL_FORM: FormState = {
 interface FormState {
   name: string;
   phone: string;
-  zipcode: string;
+  zonecode: string;
   address: string;
   addressDetail: string;
   memo: string;
@@ -77,7 +76,7 @@ export default function OrderPage() {
     setShipping({
       name: user.username,
       phone: user.phone,
-      zipcode: user.address.zonecode ?? "",
+      zonecode: user.address.zonecode ?? "",
       address: user.address.roadAddress ?? "",
       addressDetail: user.address.detailAddress ?? "",
       memo: "",
@@ -296,8 +295,8 @@ export default function OrderPage() {
                   </Field>
                   <Field label="우편번호" className="md:col-span-1">
                     <input
-                      value={shipping.zipcode}
-                      onChange={setField("zipcode")}
+                      value={shipping.zonecode}
+                      onChange={setField("zonecode")}
                       placeholder="12345"
                       className="w-full border px-3 py-2.5 text-sm outline-none border-line"
                     />
