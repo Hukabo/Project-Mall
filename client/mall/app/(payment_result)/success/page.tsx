@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../../_lib/api/api";
 import { won } from "@/app/_lib/util/common";
 import PerforatedEdge from "@/app/_component/PerforatedEdge";
-import { CartItem } from "@/app/_lib/types/cart/cart_item";
 
 type ConfirmState = "loading" | "success";
 
@@ -21,19 +20,6 @@ export default function SuccessPage() {
     amount: Number(searchParams.get("amount")),
     paymentKey: searchParams.get("paymentKey"),
   };
-
-  async function getCartItems() {
-    return await api.get<CartItem[]>("cart");
-  }
-
-  async function createOrder(cartItems: CartItem[]) {
-    const order = await api.post("orders", {
-      orderId: requestData.orderId,
-      cartItemIds: cartItems.map((item) => item.id),
-    });
-
-    return order;
-  }
 
   async function confirm() {
     await api.post("payments/confirm", requestData);
@@ -61,10 +47,7 @@ export default function SuccessPage() {
           return;
         }
 
-        const cartItems = await getCartItems();
-
         await confirm();
-        await createOrder(cartItems);
       } catch (err) {
         console.error(err);
         router.replace("/fail?message=결제 실패");

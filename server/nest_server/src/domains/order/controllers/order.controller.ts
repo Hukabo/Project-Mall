@@ -1,21 +1,7 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  UsePipes,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { OrderService } from '../services/order.service';
 import { OrderStatus } from 'src/enums/order-status.enum';
-import { ValidationPipe } from 'src/pipes/validation.pipe';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
-import {
-  createOrderSchema,
-  type CreateOrderDto,
-} from '../dto/create-order.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -23,14 +9,6 @@ export class OrderController {
 
   constructor(orderService: OrderService) {
     this.orderService = orderService;
-  }
-
-  @Post()
-  create(
-    @CurrentUser('id') userId: string,
-    @Body(new ValidationPipe(createOrderSchema)) createOrderDto: CreateOrderDto,
-  ) {
-    return this.orderService.create(userId, createOrderDto);
   }
 
   @Get(':orderId')

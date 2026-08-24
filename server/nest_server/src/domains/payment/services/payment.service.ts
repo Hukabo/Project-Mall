@@ -2,20 +2,23 @@ import {
   BadGatewayException,
   BadRequestException,
   ConflictException,
+  HttpException,
   Injectable,
+  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { CartItem } from 'src/domains/cart/cart_item/entity/cartItem.entity';
 import { ConfirmPaymentDto } from '../dto/confirm-payment.dto';
 import { PreparePaymentDto } from '../dto/prepare-payment.dto';
 import { Payment, PaymentStatus } from '../entity/payment.entity';
 import { Order } from 'src/domains/order/entity/order.entity';
 import { Shipping } from 'src/domains/order/shipping/entity/shipping.entity';
-import { InternalServerError } from 'src/errors/internal-server.error';
-import { OrderStatus } from 'src/enums/order-status.enum';
+import { OrderItem } from 'src/domains/order/orderItem/entity/orderItem.entity';
+import { OrderService } from 'src/domains/order/services/order.service';
+import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
 @Injectable()
 export class PaymentService {
@@ -53,6 +56,7 @@ export class PaymentService {
         throw new BadRequestException('유효하지 않은 장바구니 상품입니다.');
       }
 
+      // 검증만 하고 차감 X
       cartItems.forEach((item) => {
         if (item.quantity > item.productSpec.stock) {
           throw new ConflictException(
@@ -61,11 +65,13 @@ export class PaymentService {
         }
       });
 
+      // DB에 저장된 상품 가격 기반으로 계산된 총액
       const amount = cartItems.reduce(
         (sum, item) =>
           sum + item.productSpec.productView.product.price * item.quantity,
         isDiscount ? 0 : 3500,
       );
+
       const orderName =
         cartItems.length === 1
           ? cartItems[0].productSpec.productView.product.name
@@ -80,6 +86,22 @@ export class PaymentService {
           user: { id: userId },
         }),
       );
+
+      const orderItems = cartItems.map((item) =>
+        manager.create(OrderItem, {
+          name: item.productSpec.productView.product.name,
+          color: item.productSpec.productView.color,
+          size: item.productSpec.size,
+          price: item.productSpec.productView.product.price,
+          quantity: item.quantity,
+          thumbnail: item.productSpec.productView.product.thumbnail,
+          cartItemId: item.id,
+          order,
+          productSpec: item.productSpec,
+        }),
+      );
+
+      await manager.save(orderItems);
 
       const payment = await manager.save(
         manager.create(Payment, {
@@ -98,31 +120,88 @@ export class PaymentService {
     });
   }
 
-  async confirm(userId: string, dto: ConfirmPaymentDto) {
-    const payment = await this.paymentRepository.findOne({
+  async confirm(userId: string, dto: ConfirmPaymentDto): Promise<Order> {
+    const { paymentKey, amount, orderId } = dto;
+
+    // 주문 조회
+    const order = await this.dataSource.manager.findOne(Order, {
       where: {
-        order: { id: dto.orderId },
+        id: orderId,
         user: { id: userId },
       },
       relations: {
-        order: true,
+        orderItems: {
+          productSpec: true,
+        },
       },
     });
 
-    if (!payment)
-      throw new NotFoundException('준비된 결제 정보를 찾을 수 없습니다.');
+    if (!order) {
+      throw new NotFoundException('결제 시도 중 주문 조회에 실패하였습니다.');
+    }
 
-    if (payment.status === PaymentStatus.PAID)
-      throw new ConflictException('이미 승인된 결제입니다.');
+    const payment = await this.dataSource.transaction(async (manager) => {
+      // 결제 정보 조회
+      const payment = await manager.findOne(Payment, {
+        where: {
+          order: { id: orderId },
+        },
+        lock: { mode: 'pessimistic_write' }, // Pessimistic locks require an active database transaction
+      });
 
-    if (payment.amount !== dto.amount)
-      throw new BadRequestException(
-        '결제 금액이 서버에 저장된 금액과 다릅니다.',
+      if (!payment) {
+        throw new NotFoundException('준비된 결제 정보를 찾을 수 없습니다.');
+      }
+
+      if (payment.status === PaymentStatus.PAID) {
+        throw new NotAcceptableException('이미 결제 완료된 주문건입니다.');
+      }
+
+      if (payment.amount !== amount) {
+        throw new BadRequestException(
+          '결제 금액이 서버에 저장된 금액과 다릅니다.',
+        );
+      }
+
+      // 주문 상품들 locking해서 조회
+      const lockedSpecs = await Promise.all(
+        order.orderItems.map(async (item) => {
+          const spec = await manager.findOne(ProductSpec, {
+            where: {
+              id: item.productSpec.id,
+            },
+            lock: {
+              mode: 'pessimistic_write',
+            },
+          });
+
+          if (!spec) {
+            throw new NotFoundException(
+              '주문 생성 중 상품 조회에 실패하였습니다.',
+            );
+          }
+
+          return { spec, quantity: item.quantity };
+        }),
       );
 
-    const secretKey = this.configService.get<string>('TOSS_SECRET_KEY');
+      // 재고 감소
+      for (const { spec, quantity } of lockedSpecs) {
+        await manager.decrement(
+          ProductSpec,
+          { id: spec.id },
+          'stock',
+          quantity,
+        );
+      }
 
-    if (!secretKey) throw new Error('TOSS_SECRET_KEY가 설정되지 않았습니다.');
+      return payment;
+    });
+
+    const secretKey = this.configService.get<string>('TOSS_SECRET_KEY');
+    if (!secretKey) {
+      throw new Error('TOSS_SECRET_KEY가 설정되지 않았습니다.');
+    }
 
     // 토스페이먼츠 결제 승인 요청
     const res = await fetch(
@@ -146,36 +225,42 @@ export class PaymentService {
       paymentKey?: string;
     };
 
-    console.log('tossPayment = ', tossPayment);
+    await this.dataSource.transaction(async (manager) => {
+      // 토스결제 응답이 올바르지 않을 경우
+      if (
+        !res.ok ||
+        tossPayment.orderId !== order.id ||
+        tossPayment.totalAmount !== payment.amount
+      ) {
+        for (const item of order.orderItems) {
+          await manager.increment(
+            ProductSpec,
+            { id: item.productSpec.id },
+            'stock',
+            item.quantity,
+          );
+        }
 
-    if (!res.ok) {
-      payment.status = PaymentStatus.FAIL;
-      await this.paymentRepository.save(payment);
+        payment.status = PaymentStatus.FAIL;
+        await manager.save(payment);
 
-      throw new BadGatewayException({
-        code: tossPayment.code,
-        message: tossPayment.message ?? '토스페이먼츠 승인에 실패했습니다.',
-      });
-    }
-    if (
-      tossPayment.orderId !== payment.order.id ||
-      tossPayment.totalAmount !== payment.amount
-    ) {
-      payment.status = PaymentStatus.FAIL;
-      await this.paymentRepository.save(payment);
-
-      throw new BadGatewayException(
-        '토스페이먼츠 승인 결과의 주문 정보가 일치하지 않습니다.',
-      );
-    }
-    payment.status = PaymentStatus.PAID;
-    payment.paymentKey = tossPayment.paymentKey ?? dto.paymentKey;
-
-    await this.paymentRepository.save(payment);
-    await this.dataSource.manager.update(Order, dto.orderId, {
-      status: OrderStatus.PAID,
+        throw new BadGatewayException({
+          code: tossPayment.code,
+          message: tossPayment.message ?? '결제 승인에 실패했습니다.',
+        });
+      }
     });
 
-    return tossPayment;
+    await this.dataSource.transaction(async (manager) => {
+      payment.paymentKey = tossPayment.paymentKey ?? paymentKey;
+      payment.status = PaymentStatus.PAID;
+      await manager.save(payment);
+
+      await manager.delete(CartItem, {
+        id: In(order.orderItems.map((item) => item.cartItemId)),
+      });
+    });
+
+    return order;
   }
 }
