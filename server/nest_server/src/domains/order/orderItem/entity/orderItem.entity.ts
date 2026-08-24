@@ -28,7 +28,7 @@ export class OrderItem {
   thumbnail!: string;
 
   @Column()
-  productId!: number;
+  cartItemId!: number;
 
   @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   order!: Order;
