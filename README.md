@@ -18,7 +18,8 @@
 - **[https://mall.auction](https://mall.auction)**
 + 게스트 ID 및 Password
   ```
-    
+    guest@guest.com
+    123123123a!
   ```
 ---
 
