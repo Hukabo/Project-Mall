@@ -17,7 +17,6 @@ import { Payment, PaymentStatus } from '../entity/payment.entity';
 import { Order } from 'src/domains/order/entity/order.entity';
 import { Shipping } from 'src/domains/order/shipping/entity/shipping.entity';
 import { OrderItem } from 'src/domains/order/orderItem/entity/orderItem.entity';
-import { OrderService } from 'src/domains/order/services/order.service';
 import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
 @Injectable()
@@ -25,9 +24,6 @@ export class PaymentService {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
-
-    @InjectRepository(Payment)
-    private readonly paymentRepository: Repository<Payment>,
 
     private readonly configService: ConfigService,
   ) {}
@@ -77,8 +73,10 @@ export class PaymentService {
           ? cartItems[0].productSpec.productView.product.name
           : `${cartItems[0].productSpec.productView.product.name} 외 ${cartItems.length - 1}건`;
 
+      // 배송지 생성
       const createdShipping = await manager.save(Shipping, shipping);
 
+      // 주문 생성
       const order = await manager.save(
         manager.create(Order, {
           name: orderName,
@@ -87,6 +85,7 @@ export class PaymentService {
         }),
       );
 
+      // 주문 상품 생성
       const orderItems = cartItems.map((item) =>
         manager.create(OrderItem, {
           name: item.productSpec.productView.product.name,
