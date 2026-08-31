@@ -3,29 +3,17 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
-  Patch,
   Post,
-  Req,
-  Res,
-  UseFilters,
-  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { type CreateUserDto, createUserSchema } from '../dto/create-user.dto';
 import { UserService } from '../services/user.service';
 import { User } from '../entity/user.entity';
 import { ValidationPipe } from 'src/pipes/validation.pipe';
-import { RoleGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
-import { DeleteResult } from 'typeorm';
-import { type UpdateUserDto, updateUserSchema } from '../dto/update-user.dto';
 import { ResponseUserDto } from '../dto/response-user.dto';
-import { JwtAuthGuard } from 'src/domains/auth/guards/jwt-auth/jwt-auth.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { Public } from 'src/decorators/public.decorator';
 
