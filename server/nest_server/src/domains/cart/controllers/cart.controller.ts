@@ -34,7 +34,7 @@ export class CartController {
     @CurrentUser('id') userId: string,
     @Body(new ValidationPipe(createCartItemSchema))
     createCartItemDto: CreateCartItemDto,
-  ): Promise<void> {
+  ): Promise<number[]> {
     return this.cartService.create(userId, createCartItemDto);
   }
 
