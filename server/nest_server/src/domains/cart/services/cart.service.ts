@@ -37,7 +37,7 @@ export class CartService {
   async create(
     userId: string,
     createCartItemDto: CreateCartItemDto,
-  ): Promise<void> {
+  ): Promise<number[]> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -83,15 +83,30 @@ export class CartService {
           await queryRunner.manager.save(existingItem);
         } else {
           // 새로운 담기는 상품이라면
-          queryRunner.manager.save(CartItem, {
+          await queryRunner.manager.save(CartItem, {
             quantity: item.quantity,
             cart,
             productSpec: spec,
           });
         }
       }
-
       await queryRunner.commitTransaction();
+
+      const savedCart = await queryRunner.manager.findOne(Cart, {
+        where: {
+          id: user.cart.id,
+        },
+        relations: {
+          cartItems: true,
+        },
+      });
+
+      if (!savedCart) {
+        throw new NotFoundException();
+      }
+      const cartItemIds = savedCart.cartItems.map((item) => item.id);
+
+      return cartItemIds;
     } catch (error) {
       console.error(error);
 
@@ -103,6 +118,8 @@ export class CartService {
         'Something went wrong while creating the cart item...',
         error,
       );
+    } finally {
+      await queryRunner.release();
     }
   }
 
