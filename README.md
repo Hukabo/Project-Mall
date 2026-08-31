@@ -261,12 +261,144 @@ const initialRef = useRef(false);
 
 ----
 
+## 🛠️ 테스트 목록
+
+### 1. 동시성 테스트
+- 대상: 상품 재고량
+- 목적: 동일 상품에 대한 동시 결제 요청 시 재고와 주문에 대한 정합성 보장
+- 테스트 툴: k6
+#### Lock 적용 전
+| 항목 |  |  |  |
+|:---:|:---:|:---:|:---:|
+| 동시 요청 | 10 | 50 | 100 |
+| 초기 재고 | 5  | 10 | 20 |
+| 성공 주문 | 10 | 18 | 29 |
+| 재고 초과 판매 | 5 | 8 | 9 |
+| 최종 재고 | -5 | -8 | -9 |
+| p50 |134.71ms|149.65ms|266.7ms|
+| p90 |136.47ms|236.22ms|289.35ms|
+| p95 |136.64ms|236.9ms|343.46ms|
+
+#### Lock 적용 후(비관적 락)
+| 항목 |  |  |  |
+|:---:|:---:|:---:|:---:|
+| 동시 요청 | 10 | 50 | 100 |
+| 초기 재고 | 5  | 10 | 20 |
+| 성공 주문 | 5 | 10 | 20 |
+| 재고 초과 판매 | 0 | 0 | 0 |
+| 최종 재고 | 0 | 0 | 0 |
+| p50 |543.38ms|1.07s|2.17s|
+| p90 |548.86ms|1.08s|2.2s|
+| p95 |549.13ms|1.08s|2.21s|
+
+#### DB 레벨 처리 (Atomic Query)
+| 항목 |  |  |  |
+|:---:|:---:|:---:|:---:|
+| 동시 요청 | 10 | 50 | 100 |
+| 초기 재고 | 5  | 10 | 20 |
+| 성공 주문 | 10 | 10 | 20 |
+| 재고 초과 판매 | 0 | 0 | 0 |
+| 최종 재고 | 0 | 0 | 0 |
+| p50 |52.37ms|48.86ms|48.37ms|
+| p90 |53.53ms|62.41ms|103.51ms|
+| p95 |53.65ms|63.75ms|111.25ms|
+
+#### 분석
+
+- **Lock 미적용**: 락(Lock) 미적용 시 요청이 동시에 몰릴 경우 응답은 비교적 빨랐으나 **경쟁 상태(Race Condition)가 발생하여 데이터 정합성이 보장되지 않았습니다.**
+- **Lock 적용**: 데이터를 읽는 순간 Lock을 걸어 다른 트랙젝션이 접근하지 못하게하여 **데이터의 일관성은 유지 할 수 있었으나** 락을 획득한 트랜젝션이 끝날 때까지 다른 트랜젝션들이 대기해야 하기 때문에 **성능저하 및 대기시간이 증가**하였습니다.
+- **DB 레벨 처리**: 데이터를 바로 DB 레벨에서 조건부로 처리하기 때문에 **네트워크 부하 및 Round trip이 감소하여 성능은 향상**되었으나 부하가 높아질 경우 **확장성 문제 및 이력 추적이 어렵다는 문제**가 있었습니다.
+
+**결론**: 처음에는 **pessimistic_wrtie로 상품을 조회하는 부분만 atomic query로 변경**하려 하였으나 주문된 상품의 재고 부족 발생 시 해당 상품의 정보(식별번호, 재고량, 주문 수량 등)를 추적하기 어렵다는 문제와 추후 상품 정보와 관련된 비지니스 로직(전용 쿠폰, 구매 수량 제한 등)이 추가 될 경우 재고량 감소를 DB 레벨에서만 다루기에는 문제가 생기기 때문에, 다소 성능이 감소 하더라도 **pessimistic_wrtie로 상품을 조회 하되 아래 기존 코드를 개선**하여 네트워크 왕복(round trip)을 최소한으로 하여 채택하였습니다.
+
+**개선 전**
+
+```typescript
+      // 상품에 lock을 걸어 병렬적으로 조회
+      // ! 상품 수 만큼 네트워크 왕복 문제 및 데드락 문제 발생 !
+      const lockedSpecs = await Promise.all(
+        order.orderItems.map(async (item) => {
+          const spec = await manager.findOne(ProductSpec, {
+            where: {
+              id: item.productSpec.id,
+            },
+            lock: {
+              mode: 'pessimistic_write',
+            },
+          });
+
+          if (!spec) {
+            throw new NotFoundException(
+              '주문 생성 중 일부 상품 조회에 실패하였습니다.',
+            );
+          }
+
+          return { spec, quantity: item.quantity };
+        }),
+      );
+
+      // 재고 감소
+      for (const { spec, quantity } of lockedSpecs) {
+        if (spec.stock < quantity) {
+          throw new ConflictException(`주문 상품 재고량이 부족합니다. sku: ${spec.sku}, 재고량: ${spec.stock}, 주문량: ${quantity}`);
+        }
+
+        await manager.decrement(
+          ProductSpec,
+          { id: spec.id },
+          'stock',
+          quantity,
+        );
+      }
+```
+
+**개선 후**
+
+```typescript
+      // 상품 id를 순차적으로 나열하여 조회하여 데드락 발생x
+      const specIds = order.orderItems
+        .map((item) => item.productSpec.id)
+        .sort((a, b) => a - b);
+
+      // IN으로 한 번에 조회하여 round trip 최소화
+      const specs = await manager
+        .getRepository(ProductSpec)
+        .createQueryBuilder('spec')
+        .setLock('pessimistic_write')
+        .where('spec.id IN (:...specIds)', { specIds })
+        .orderBy('spec.id', 'ASC')
+        .getMany();
+
+      const specAndQty = order.orderItems.map((item) => {
+        const spec = specs.find((s) => s.id === item.productSpec.id);
+
+        if (!spec)
+          throw new NotFoundException(
+            '주문 생성 중 일부 상품 조회에 실패하였습니다.',
+          );
+
+        return { spec, quantity: item.quantity };
+      });
+
+      // 재고 감소
+      for (const { spec, quantity } of specAndQty) {
+        if (spec.stock < quantity) {
+          throw new ConflictException(
+            `주문 상품 재고량이 부족합니다. sku: ${spec.sku}, 재고량: ${spec.stock}, 주문량: ${quantity}`,
+          );
+        }
+
+        await manager.decrement(
+          ProductSpec,
+          { id: spec.id },
+          'stock',
+          quantity,
+        );
+      }
+```
+----
+
 ## 🔨 향후 개선 계획
 - [ ] 리뷰/평점 기능
 - [ ] 검색 성능 최적화 (인덱싱)
 - [ ] 관리자 대시보드
-- [ ] 테스트 코드 작성
-- [ ] 부하 테스트
-- [ ] CI/CD
-
-
