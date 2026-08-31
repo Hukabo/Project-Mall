@@ -9,7 +9,7 @@ import { User } from 'src/domains/user/entity/user.entity';
 import { DataSource, Like } from 'typeorm';
 
 const TEST_PRODUCT_ID = 351;
-const TEST_STOCK = 10;
+const TEST_STOCK = 5;
 
 const createCartItemDto = {
   cartItems: [{ id: TEST_PRODUCT_ID, quantity: 1 }],
@@ -47,6 +47,7 @@ describe('PaymentService - 재고 동시성 테스트', () => {
         },
         address: true,
       },
+      take: 10,
     });
 
     // 테스트 주문을 위하여 장바구니에 상품 추가 및 주문 prepare 호출
@@ -110,6 +111,7 @@ describe('PaymentService - 재고 동시성 테스트', () => {
 
     console.log(`성공 : ${success.length}, 실패 : ${failed.length}`);
 
+    expect(TEST_USERS.length).toBe(10);
     expect(success.length).toBe(TEST_STOCK);
     expect(failed.length).toBe(TEST_USERS.length - TEST_STOCK);
 

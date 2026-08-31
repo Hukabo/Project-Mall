@@ -186,6 +186,10 @@ export class PaymentService {
 
       // 재고 감소
       for (const { spec, quantity } of lockedSpecs) {
+        if (spec.stock < quantity) {
+          throw new ConflictException('주문 상품 재고량이 부족합니다.');
+        }
+
         await manager.decrement(
           ProductSpec,
           { id: spec.id },
