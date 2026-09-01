@@ -21,6 +21,17 @@ import {
 import { PaymentService } from 'src/domains/payment/services/payment.service';
 import { ProductSpec } from 'src/domains/product/entity/productSpec.entity';
 
+const mockQueryBuilder = {
+  setLock: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
+  getMany: jest.fn(),
+};
+
+const mockRepository = {
+  createQueryBuilder: jest.fn(() => mockQueryBuilder),
+};
+
 interface MockManger {
   find: jest.Func;
   findOne: jest.Func;
@@ -29,6 +40,7 @@ interface MockManger {
   create: jest.Func;
   increment: jest.Func;
   decrement: jest.Func;
+  getRepository: jest.Func;
 }
 
 describe('PaymentService', () => {
@@ -49,6 +61,7 @@ describe('PaymentService', () => {
       delete: jest.fn(),
       increment: jest.fn(),
       decrement: jest.fn(),
+      getRepository: jest.fn(),
     };
 
     mockDataSource = {
@@ -339,8 +352,11 @@ describe('PaymentService', () => {
     it('주문 생성 중 상품 조회 실패시 NotFoundException 발생', async () => {
       mockManager.findOne
         .mockResolvedValueOnce(mockOrder)
-        .mockResolvedValueOnce(mockPayment)
-        .mockResolvedValueOnce(null); // ProductSpec
+        .mockResolvedValueOnce(mockPayment);
+
+      mockManager.getRepository.mockReturnValue(mockRepository);
+      mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+      mockQueryBuilder.getMany.mockReturnValue([]);
 
       await expect(paymentService.confirm(userId, dto)).rejects.toThrow(
         NotFoundException,
@@ -350,10 +366,15 @@ describe('PaymentService', () => {
     it('토스 결제 승인 실패 시 재고를 복구하고 BadGatewayException 발생', async () => {
       mockManager.findOne
         .mockResolvedValueOnce(mockOrder)
-        .mockResolvedValueOnce(mockPayment)
-        .mockResolvedValueOnce(mockOrder.orderItems[0].productSpec)
-        .mockResolvedValueOnce(mockOrder.orderItems[1].productSpec)
-        .mockResolvedValueOnce(mockOrder.orderItems[2].productSpec);
+        .mockResolvedValueOnce(mockPayment);
+
+      mockManager.getRepository.mockReturnValue(mockRepository);
+
+      mockQueryBuilder.getMany.mockReturnValue([
+        mockOrder.orderItems[0].productSpec,
+        mockOrder.orderItems[1].productSpec,
+        mockOrder.orderItems[2].productSpec,
+      ]);
 
       configService.get.mockReturnValue('secret_key');
 
@@ -401,10 +422,15 @@ describe('PaymentService', () => {
     it('결제 성공 시 결제 상태를 변경하고 장바구니에서 상품을 제거한다.', async () => {
       mockManager.findOne
         .mockResolvedValueOnce(mockOrder)
-        .mockResolvedValueOnce(mockPayment)
-        .mockResolvedValueOnce(mockOrder.orderItems[0].productSpec)
-        .mockResolvedValueOnce(mockOrder.orderItems[1].productSpec)
-        .mockResolvedValueOnce(mockOrder.orderItems[2].productSpec);
+        .mockResolvedValueOnce(mockPayment);
+
+      mockManager.getRepository.mockReturnValue(mockRepository);
+
+      mockQueryBuilder.getMany.mockReturnValue([
+        mockOrder.orderItems[0].productSpec,
+        mockOrder.orderItems[1].productSpec,
+        mockOrder.orderItems[2].productSpec,
+      ]);
 
       configService.get.mockReturnValue('secret_key');
 
