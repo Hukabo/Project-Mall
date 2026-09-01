@@ -396,6 +396,72 @@ const initialRef = useRef(false);
         );
       }
 ```
+
+### 2. 부하 테스트
+- 대상: 테스트 API (GET / hello)
+- 목적: 실제 서비스 환경(EC2)에서 동시 사용자 증가에 따른 처리 성능 한계 파악
+- 테스트 툴: k6
+- 모니터링: AWS CloudWatch (EC2 CPUUtilization, NetworkIn/Out), PM2 monit
+
+#### 테스트 조건
+
+- 대상 인스턴스 모델: t3.micro(EC2) 프리티어
+- 시나리오: VU(가상 유저)를 점진적으로 증가시키며 응답시간과 에러율 확인
+
+```javascript
+  export const options = {
+    stages: [
+      { duration: "60s", target: 1200 },
+      { duration: "60s", target: 1200 },
+      { duration: "60s", target: 0 },
+    ],
+    thresholds: {
+      http_req_duration: ["p(50)<200", "p(95)<250"],
+      http_req_failed: ["rate<0.01"],
+    },
+  };
+  
+  export default function () {
+    const response = http.get(BASE_URL);
+  
+    check(response, {
+      ok: (r) => r.status === 200,
+    });
+  
+    sleep(1);
+  }
+
+```
+
+#### 결과
+
+| VU (동시 사용자) | 500 | 1000 | 1500 | 2000 | 2000(개선 후) |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 요청 성공률 | 100% | 100% | 99.79% | 99.77% | 100% |
+| p50 | 13.68ms | 19.08ms | 251.11ms | 44.24ms | 430.8ms |
+| p90 | 28.71ms | 63.03ms | 507.11ms | 420.53ms | 616.99ms |
+| p95 | 60.61ms | 87.63ms | 695.98ms | 761.21ms | 1.57s |
+| 처리량 (req/s) | 325.3 | 640.9 | 755.2 | 560.4 | 886.8 |
+| 총 처리량 | 58522 | 115021 | 137754 | 101342 | 160315 |
+| 에러율 | 0% | 0% | 0.21% | 0.23% | 0% |
+
+#### 리소스 사용량 (CloudWatch)
+
+| VU (동시 사용자) | 500 | 1000 | 1500 | 2000 |
+|:---:|:---:|:---:|:---:|:---:|
+| EC2 CPU 사용률 | 22.7% | 31.9% | 39.8% | 38.7% |
+| EC2 NetworkIn(bytes) | 2.9M | 5.7M | 9.2M | 19.3M |
+| EC2 NetworkOut(bytes) | 5.0M | 9.6M | 17.2M | 37.4M |
+
+
+#### 병목 구간 분석
+
+- **발생**: 동시 사용자가 1500명을 넘어가면서 ```Connection reset by peer``` 가 발생하면서 TCP 계층에서 연결이 끊김 및 2000vu에서 1500vu에 비해 오히려 처리량이 감소하여 서버가 과부하 상태에 들어갔음을 확인
+- **분석 과정**: 모니터링 결과 최대 부하 시 EC2 전체 CPU 사용량은 40% 언저리였으며 메모리 여유 공간 또한 300Mi ~ 309Mi 수준으로 하드웨어로 인한 병목 문제는 아니었음을 확인
+- **원인**: EC2에서 "/var/log/nginx/error.log" 확인 결과 ```1024 worker_connections are not enough, reusing connections``` 로그가 지속적으로 찍혀있음을 확인
+- **해결**: worker_connections의 제한을 늘려주어 동시에 더 많은 양의 트래픽을 처리할 수 있도록 개선하여 해결
+- **주의 사항**: 리눅스에서 네트워크 요청은 파일로 취급되기 때문에 worker_connections를 너무 많이 늘려서 시스템이 허용하는 최대 파일 개수(ulimit)를 초과하게 된다면 ```Too many open files```오류가 발생 할 수 있고, CPU 과부하 또는 메모리 고갈로 인해 오히려 병목 현상이 나타나거나 프로세스가 다운 될 수 있으므로 자원을 고려하여 설정해야함을 확인
+
 ----
 
 ## 🔨 향후 개선 계획
