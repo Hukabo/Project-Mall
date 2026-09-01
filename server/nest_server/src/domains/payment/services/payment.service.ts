@@ -163,31 +163,35 @@ export class PaymentService {
       }
 
       // 주문 상품들 locking해서 조회
-      const lockedSpecs = await Promise.all(
-        order.orderItems.map(async (item) => {
-          const spec = await manager.findOne(ProductSpec, {
-            where: {
-              id: item.productSpec.id,
-            },
-            lock: {
-              mode: 'pessimistic_write',
-            },
-          });
+      const specIds = order.orderItems
+        .map((item) => item.productSpec.id)
+        .sort((a, b) => a - b); // 주문 A가 상품 1, 2 순서대로 lock하고, 주문 B가 상품 2, 1 순서대로 lock을 한다면 데드락이 발생하기 때문에 orderItems 순차 정렬
 
-          if (!spec) {
-            throw new NotFoundException(
-              '주문 생성 중 상품 조회에 실패하였습니다.',
-            );
-          }
+      const specs = await manager
+        .getRepository(ProductSpec)
+        .createQueryBuilder('spec')
+        .setLock('pessimistic_write')
+        .where('spec.id IN (:...specIds)', { specIds })
+        .orderBy('spec.id', 'ASC')
+        .getMany();
 
-          return { spec, quantity: item.quantity };
-        }),
-      );
+      const specAndQty = order.orderItems.map((item) => {
+        const spec = specs.find((s) => s.id === item.productSpec.id);
+
+        if (!spec)
+          throw new NotFoundException(
+            '주문 생성 중 일부 상품 조회에 실패하였습니다.',
+          );
+
+        return { spec, quantity: item.quantity };
+      });
 
       // 재고 감소
-      for (const { spec, quantity } of lockedSpecs) {
+      for (const { spec, quantity } of specAndQty) {
         if (spec.stock < quantity) {
-          throw new ConflictException('주문 상품 재고량이 부족합니다.');
+          throw new ConflictException(
+            `주문 상품 재고량이 부족합니다. sku: ${spec.sku}, 재고량: ${spec.stock}, 주문량: ${quantity}`,
+          );
         }
 
         await manager.decrement(
