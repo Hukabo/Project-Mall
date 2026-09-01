@@ -261,12 +261,210 @@ const initialRef = useRef(false);
 
 ----
 
+## 🛠️ 테스트 목록
+
+### 1. 동시성 테스트
+- 대상: 상품 재고량
+- 목적: 동일 상품에 대한 동시 결제 요청 시 재고와 주문에 대한 정합성 보장
+- 테스트 툴: k6
+#### Lock 적용 전
+| 항목 |  |  |  |
+|:---:|:---:|:---:|:---:|
+| 동시 요청 | 10 | 50 | 100 |
+| 초기 재고 | 5  | 10 | 20 |
+| 성공 주문 | 10 | 18 | 29 |
+| 재고 초과 판매 | 5 | 8 | 9 |
+| 최종 재고 | -5 | -8 | -9 |
+| p50 |134.71ms|149.65ms|266.7ms|
+| p90 |136.47ms|236.22ms|289.35ms|
+| p95 |136.64ms|236.9ms|343.46ms|
+
+#### Lock 적용 후(비관적 락)
+| 항목 |  |  |  |
+|:---:|:---:|:---:|:---:|
+| 동시 요청 | 10 | 50 | 100 |
+| 초기 재고 | 5  | 10 | 20 |
+| 성공 주문 | 5 | 10 | 20 |
+| 재고 초과 판매 | 0 | 0 | 0 |
+| 최종 재고 | 0 | 0 | 0 |
+| p50 |543.38ms|1.07s|2.17s|
+| p90 |548.86ms|1.08s|2.2s|
+| p95 |549.13ms|1.08s|2.21s|
+
+#### DB 레벨 처리 (Atomic Query)
+| 항목 |  |  |  |
+|:---:|:---:|:---:|:---:|
+| 동시 요청 | 10 | 50 | 100 |
+| 초기 재고 | 5  | 10 | 20 |
+| 성공 주문 | 10 | 10 | 20 |
+| 재고 초과 판매 | 0 | 0 | 0 |
+| 최종 재고 | 0 | 0 | 0 |
+| p50 |52.37ms|48.86ms|48.37ms|
+| p90 |53.53ms|62.41ms|103.51ms|
+| p95 |53.65ms|63.75ms|111.25ms|
+
+#### 분석
+
+- **Lock 미적용**: 락(Lock) 미적용 시 요청이 동시에 몰릴 경우 응답은 비교적 빨랐으나 **경쟁 상태(Race Condition)가 발생하여 데이터 정합성이 보장되지 않았습니다.**
+- **Lock 적용**: 데이터를 읽는 순간 Lock을 걸어 다른 트랙젝션이 접근하지 못하게하여 **데이터의 일관성은 유지 할 수 있었으나** 락을 획득한 트랜젝션이 끝날 때까지 다른 트랜젝션들이 대기해야 하기 때문에 **성능저하 및 대기시간이 증가**하였습니다.
+- **DB 레벨 처리**: 데이터를 바로 DB 레벨에서 조건부로 처리하기 때문에 **네트워크 부하 및 Round trip이 감소하여 성능은 향상**되었으나 부하가 높아질 경우 **확장성 문제 및 이력 추적이 어렵다는 문제**가 있었습니다.
+
+**결론**: 처음에는 **pessimistic_wrtie로 상품을 조회하는 부분만 atomic query로 변경**하려 하였으나 주문된 상품의 재고 부족 발생 시 해당 상품의 정보(식별번호, 재고량, 주문 수량 등)를 추적하기 어렵다는 문제와 추후 상품 정보와 관련된 비지니스 로직(전용 쿠폰, 구매 수량 제한 등)이 추가 될 경우 재고량 감소를 DB 레벨에서만 다루기에는 문제가 생기기 때문에, 다소 성능이 감소 하더라도 **pessimistic_wrtie로 상품을 조회 하되 아래 기존 코드를 개선**하여 네트워크 왕복(round trip)을 최소한으로 하여 채택하였습니다.
+
+**개선 전**
+
+```typescript
+      // 상품에 lock을 걸어 병렬적으로 조회
+      // ! 상품 수 만큼 네트워크 왕복 문제 및 데드락 문제 발생 !
+      const lockedSpecs = await Promise.all(
+        order.orderItems.map(async (item) => {
+          const spec = await manager.findOne(ProductSpec, {
+            where: {
+              id: item.productSpec.id,
+            },
+            lock: {
+              mode: 'pessimistic_write',
+            },
+          });
+
+          if (!spec) {
+            throw new NotFoundException(
+              '주문 생성 중 일부 상품 조회에 실패하였습니다.',
+            );
+          }
+
+          return { spec, quantity: item.quantity };
+        }),
+      );
+
+      // 재고 감소
+      for (const { spec, quantity } of lockedSpecs) {
+        if (spec.stock < quantity) {
+          throw new ConflictException(`주문 상품 재고량이 부족합니다. sku: ${spec.sku}, 재고량: ${spec.stock}, 주문량: ${quantity}`);
+        }
+
+        await manager.decrement(
+          ProductSpec,
+          { id: spec.id },
+          'stock',
+          quantity,
+        );
+      }
+```
+
+**개선 후**
+
+```typescript
+      // 상품 id를 순차적으로 나열하여 조회하여 데드락 발생x
+      const specIds = order.orderItems
+        .map((item) => item.productSpec.id)
+        .sort((a, b) => a - b);
+
+      // IN으로 한 번에 조회하여 round trip 최소화
+      const specs = await manager
+        .getRepository(ProductSpec)
+        .createQueryBuilder('spec')
+        .setLock('pessimistic_write')
+        .where('spec.id IN (:...specIds)', { specIds })
+        .orderBy('spec.id', 'ASC')
+        .getMany();
+
+      const specAndQty = order.orderItems.map((item) => {
+        const spec = specs.find((s) => s.id === item.productSpec.id);
+
+        if (!spec)
+          throw new NotFoundException(
+            '주문 생성 중 일부 상품 조회에 실패하였습니다.',
+          );
+
+        return { spec, quantity: item.quantity };
+      });
+
+      // 재고 감소
+      for (const { spec, quantity } of specAndQty) {
+        if (spec.stock < quantity) {
+          throw new ConflictException(
+            `주문 상품 재고량이 부족합니다. sku: ${spec.sku}, 재고량: ${spec.stock}, 주문량: ${quantity}`,
+          );
+        }
+
+        await manager.decrement(
+          ProductSpec,
+          { id: spec.id },
+          'stock',
+          quantity,
+        );
+      }
+```
+
+### 2. 부하 테스트
+- 대상: 테스트 API (GET / hello)
+- 목적: 실제 서비스 환경(EC2)에서 동시 사용자 증가에 따른 처리 성능 한계 파악
+- 테스트 툴: k6
+- 모니터링: AWS CloudWatch (EC2 CPUUtilization, NetworkIn/Out), PM2 monit
+
+#### 테스트 조건
+
+- 대상 인스턴스 모델: t3.micro(EC2) 프리티어
+- 시나리오: VU(가상 유저)를 점진적으로 증가시키며 응답시간과 에러율 확인
+
+```javascript
+  export const options = {
+    stages: [
+      { duration: "60s", target: 1200 },
+      { duration: "60s", target: 1200 },
+      { duration: "60s", target: 0 },
+    ],
+    thresholds: {
+      http_req_duration: ["p(50)<200", "p(95)<250"],
+      http_req_failed: ["rate<0.01"],
+    },
+  };
+  
+  export default function () {
+    const response = http.get(BASE_URL);
+  
+    check(response, {
+      ok: (r) => r.status === 200,
+    });
+  
+    sleep(1);
+  }
+
+```
+
+#### 결과
+
+| VU (동시 사용자) | 500 | 1000 | 1500 | 2000 | 2000(개선 후) |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 요청 성공률 | 100% | 100% | 99.79% | 99.77% | 100% |
+| p50 | 13.68ms | 19.08ms | 251.11ms | 44.24ms | 430.8ms |
+| p90 | 28.71ms | 63.03ms | 507.11ms | 420.53ms | 616.99ms |
+| p95 | 60.61ms | 87.63ms | 695.98ms | 761.21ms | 1.57s |
+| 처리량 (req/s) | 325.3 | 640.9 | 755.2 | 560.4 | 886.8 |
+| 총 처리량 | 58522 | 115021 | 137754 | 101342 | 160315 |
+| 에러율 | 0% | 0% | 0.21% | 0.23% | 0% |
+
+#### 리소스 사용량 (CloudWatch)
+
+| VU (동시 사용자) | 500 | 1000 | 1500 | 2000 |
+|:---:|:---:|:---:|:---:|:---:|
+| EC2 CPU 사용률 | 22.7% | 31.9% | 39.8% | 38.7% |
+| EC2 NetworkIn(bytes) | 2.9M | 5.7M | 9.2M | 19.3M |
+| EC2 NetworkOut(bytes) | 5.0M | 9.6M | 17.2M | 37.4M |
+
+
+#### 병목 구간 분석
+
+- **발생**: 동시 사용자가 1500명을 넘어가면서 ```Connection reset by peer``` 가 발생하면서 TCP 계층에서 연결이 끊김 및 2000vu에서 1500vu에 비해 오히려 처리량이 감소하여 서버가 과부하 상태에 들어갔음을 확인
+- **분석 과정**: 모니터링 결과 최대 부하 시 EC2 전체 CPU 사용량은 40% 언저리였으며 메모리 여유 공간 또한 300Mi ~ 309Mi 수준으로 하드웨어로 인한 병목 문제는 아니었음을 확인
+- **원인**: EC2에서 "/var/log/nginx/error.log" 확인 결과 ```1024 worker_connections are not enough, reusing connections``` 로그가 지속적으로 찍혀있음을 확인
+- **해결**: worker_connections의 제한을 늘려주어 동시에 더 많은 양의 트래픽을 처리할 수 있도록 개선하여 해결
+- **주의 사항**: 리눅스에서 네트워크 요청은 파일로 취급되기 때문에 worker_connections를 너무 많이 늘려서 시스템이 허용하는 최대 파일 개수(ulimit)를 초과하게 된다면 ```Too many open files```오류가 발생 할 수 있고, CPU 과부하 또는 메모리 고갈로 인해 오히려 병목 현상이 나타나거나 프로세스가 다운 될 수 있으므로 자원을 고려하여 설정해야함을 확인
+
+----
+
 ## 🔨 향후 개선 계획
 - [ ] 리뷰/평점 기능
 - [ ] 검색 성능 최적화 (인덱싱)
 - [ ] 관리자 대시보드
-- [ ] 테스트 코드 작성
-- [ ] 부하 테스트
-- [ ] CI/CD
-
-
