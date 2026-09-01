@@ -20,6 +20,11 @@ export const AppdataSource = new DataSource({
       : false,
   extra:
     process.env.NODE_ENV === 'production'
-      ? { ssl: { rejectUnauthorized: false } }
-      : {},
+      ? {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+          max: 20,
+        }
+      : { max: 20 },
 });
