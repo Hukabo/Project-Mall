@@ -4,11 +4,13 @@
 
 ## 📖 목차
 - [배포 링크](#-배포-링크)
+- [프로젝트 개요](#-프로젝트-개요)
 - [기술 스택](#️-사용-기술-스택)
 - [ERD](#erd)
 - [주요 기능](#주요-기능)
 - [트러블슈팅](#트러블-슈팅)
 - [테스트 목록](#%EF%B8%8F-테스트-목록)
+- [주요 기능 시연 이미지](#주)
 - [향후 개선 계획](#-향후-개선-계획)
 
 ---
@@ -38,8 +40,8 @@
 ## 🛠️ 사용 기술 스택
 
 ### Frontend
-- React
 - Next.js
+- React
 - TypeScript
 - Tailwind CSS
 
@@ -51,7 +53,7 @@
 
 ### Devops & Tools
 - Vercel
-- AWS EC2 / RDS
+- AWS EC2 / RDS / CloudWatch
 - Git & GitHub
 - Postman
 
@@ -78,11 +80,11 @@
 - Daum 우편번호 서비스 api 연동
 
 ### 상품
-- 이미지 파일 업로드(cloud)
+- OpenAI를 활용한 상품 생성(이미지 및 JSON)
+- 이미지 파일 업로드(cloudinary)
 - 상품 조회(무한 스크롤)
 - 카테고리 or 상품 이름 검색 기능
 - 계층형 카테고리(부모 카테고리 -> 자식 카테고리)
-- OpenAI를 활용한 상품 생성(이미지 및 JSON)
 
 ### 장바구니
 - 동일 상품 수량 병합
@@ -239,25 +241,6 @@ const initialRef = useRef(false);
 ```
 
 'useRef'로 초기화 여부를 추적하여 두 번째 요청은 무시하도록 가드 설정함. 
-
-## 주요 기능 실사용 이미지
-
-### 회원가입 기능
-<img width="800" height="500" alt="회원가입" src="https://github.com/user-attachments/assets/c139c7cc-d596-4485-80a6-dad7cfb05006" />
-
-### 상품 검색 기능
-<img width="800" height="500" alt="상품 검색" src="https://github.com/user-attachments/assets/105114b0-b316-4c75-a4f5-cb16fe21c078" />
-
-### 상품 상세 페이지
-<img width="800" height="500" alt="상품 상세" src="https://github.com/user-attachments/assets/031cd2f6-9ac4-49c1-9ead-0645383e07de" />
-
-### 장바구니 기능
-<img width="800" height="500" alt="장바구니 기능" src="https://github.com/user-attachments/assets/178fe538-a61f-48fe-af01-3f22eb9237b3" />
-
-### 결제 및 주문 기능
-<img width="800" height="500" alt="결제 기능" src="https://github.com/user-attachments/assets/e0c97042-73e5-4896-8f86-5f6c62bc40d8" />
-
-<img width="800" height="500" alt="주문 기능" src="https://github.com/user-attachments/assets/cadeb00e-38e3-49ff-8056-c64b0be97956" />
 
 ----
 
@@ -564,6 +547,27 @@ const initialRef = useRef(false);
 - **주의 사항**: pm2 클러스터 방식으로 프로세스를 많이 띄울 수록 메모리 사용량이 증가하기 때문에 자원을 고려하여 적절하게 사용될 것이 권장됨
 - **추후 개선 사항**:
   - Redis 캐싱: 상품 조회 (GET /product/id)는 수정이 적고 조회가 빈번한 API이므로 요청을 DB까지 보내지 않고 NestJs 앞단에 Redis 캐시를 두어 한 번 조회된 상품은 캐시에서 즉시 반환하도록 수정
+
+----
+
+## 주요 기능 시연 이미지
+
+### 회원가입 기능
+<img width="800" height="500" alt="회원가입" src="https://github.com/user-attachments/assets/c139c7cc-d596-4485-80a6-dad7cfb05006" />
+
+### 상품 검색 기능
+<img width="800" height="500" alt="상품 검색" src="https://github.com/user-attachments/assets/105114b0-b316-4c75-a4f5-cb16fe21c078" />
+
+### 상품 상세 페이지
+<img width="800" height="500" alt="상품 상세" src="https://github.com/user-attachments/assets/031cd2f6-9ac4-49c1-9ead-0645383e07de" />
+
+### 장바구니 기능
+<img width="800" height="500" alt="장바구니 기능" src="https://github.com/user-attachments/assets/178fe538-a61f-48fe-af01-3f22eb9237b3" />
+
+### 결제 및 주문 기능
+<img width="800" height="500" alt="결제 기능" src="https://github.com/user-attachments/assets/e0c97042-73e5-4896-8f86-5f6c62bc40d8" />
+
+<img width="800" height="500" alt="주문 기능" src="https://github.com/user-attachments/assets/cadeb00e-38e3-49ff-8056-c64b0be97956" />
 
 ----
 
