@@ -50,12 +50,15 @@
 - TypeORM
 - PostgreSQL
 - JWT Authentication
+- Zod
+- jest
 
 ### Devops & Tools
 - Vercel
 - AWS EC2 / RDS / CloudWatch
 - Git & GitHub
 - Postman
+- CI/CD
 
 ---
 
