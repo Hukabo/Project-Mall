@@ -49,7 +49,7 @@
 - Nest.js
 - TypeORM
 - PostgreSQL
-- JWT Authentication(Cookie 인증 방식)
+- JWT Authentication
 
 ### Devops & Tools
 - Vercel
