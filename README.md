@@ -52,7 +52,6 @@
 - PostgreSQL
 - JWT Authentication
 - Zod
-- jest
 
 ### Devops & Tools
 - Vercel
@@ -60,6 +59,7 @@
 - Git & GitHub
 - Postman
 - CI/CD
+- Jest
 
 ---
 
