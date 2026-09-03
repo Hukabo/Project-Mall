@@ -327,7 +327,9 @@ const initialRef = useRef(false);
       // 재고 감소
       for (const { spec, quantity } of lockedSpecs) {
         if (spec.stock < quantity) {
-          throw new ConflictException(`주문 상품 재고량이 부족합니다. sku: ${spec.sku}, 재고량: ${spec.stock}, 주문량: ${quantity}`);
+          throw new ConflictException(
+          `주문 상품 재고량이 부족합니다. sku: ${spec.sku},
+           재고량: ${spec.stock}, 주문량: ${quantity}`);
         }
 
         await manager.decrement(
@@ -371,7 +373,8 @@ const initialRef = useRef(false);
       for (const { spec, quantity } of specAndQty) {
         if (spec.stock < quantity) {
           throw new ConflictException(
-            `주문 상품 재고량이 부족합니다. sku: ${spec.sku}, 재고량: ${spec.stock}, 주문량: ${quantity}`,
+            `주문 상품 재고량이 부족합니다. sku: ${spec.sku},
+              재고량: ${spec.stock}, 주문량: ${quantity}`,
           );
         }
 
