@@ -1,6 +1,6 @@
-import Header from "./_component/Header";
-import Body from "./_component/Body";
-import MobileSidebarProvider from "./_component/MobileSidebarProvider";
+import Header from "./_component/layout/Header";
+import Body from "./_component/layout/Body";
+import MobileSidebarProvider from "./_lib/provider/MobileSidebarProvider";
 
 export default function Home() {
   return (

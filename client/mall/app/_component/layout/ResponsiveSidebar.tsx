@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useMobileSidebar } from "./MobileSidebarProvider";
+import { useMobileSidebar } from "../../_lib/provider/MobileSidebarProvider";
 
 export default function ResponsiveSidebar({
   children,

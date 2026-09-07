@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../_lib/api/api";
 import { won } from "@/app/_lib/util/common";
-import PerforatedEdge from "@/app/_component/PerforatedEdge";
+import PerforatedEdge from "@/app/_component/ui/PerforatedEdge";
 
 type ConfirmState = "loading" | "success";
 

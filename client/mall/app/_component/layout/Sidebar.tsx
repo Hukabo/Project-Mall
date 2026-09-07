@@ -1,5 +1,5 @@
-import { api } from "../_lib/api/api";
-import { Category } from "../_lib/types/category/category";
+import { api } from "../../_lib/api/api";
+import { Category } from "../../_lib/types/category/category";
 import Categories from "./Categories";
 
 export default async function Sidebar() {

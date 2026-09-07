@@ -1,8 +1,8 @@
 "use client";
 
 import { Dispatch, SetStateAction, useState } from "react";
-import DaumPostcodeModal from "./DaumPostcodeModal";
-import { JoinForm } from "../join/page";
+import DaumPostcodeModal from "../ui/DaumPostcodeModal";
+import { JoinForm } from "../../join/page";
 
 export default function ShippingAddressForm({
   address,

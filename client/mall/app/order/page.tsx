@@ -10,7 +10,7 @@ import {
   TossPaymentsWidgets,
 } from "@tosspayments/tosspayments-sdk";
 import { optimizeImage, won } from "../_lib/util/common";
-import PaymentWidgets from "../_component/Payment";
+import PaymentWidgets from "../_component/features/PaymentWidgets";
 import Image from "next/image";
 import { CartItem } from "../_lib/types/cart/cart_item";
 

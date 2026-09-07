@@ -1,11 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import { api } from "../_lib/api/api";
-import { Product } from "../_lib/types/product/product";
 import { SyntheticEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import MagnifyingGlass from "./MagnifyingGlass";
+import MagnifyingGlass from "../features/MagnifyingGlass";
 
 export default function SearchBar() {
   const [search, setSearch] = useState("");
@@ -23,7 +20,7 @@ export default function SearchBar() {
     >
       <input
         type="search"
-        className="w-[80%] min-[400px]:focus:scale-x-110 focus:outline-none px-3 py-1.5 transition-all duration-300"
+        className="w-[80%] min-[400px]:focus:w-[90%] focus:outline-none px-3 py-1.5 transition-all duration-300"
         placeholder="상품을 입력해주세요"
         onChange={(e) => setSearch(e.target.value)}
       />

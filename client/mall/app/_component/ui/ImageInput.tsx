@@ -8,8 +8,8 @@ import {
   useId,
   useState,
 } from "react";
-import { Variant } from "../_lib/types/product/variant";
-import { VariantImage } from "../product/register/page";
+import { Variant } from "../../_lib/types/product/variant";
+import { VariantImage } from "../../product/register/page";
 
 interface ImageInputProps {
   variantIdx: number;

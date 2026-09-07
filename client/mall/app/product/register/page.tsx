@@ -1,15 +1,15 @@
 "use client";
 
 import { SyntheticEvent, useEffect, useState } from "react";
-import Button from "@/app/_component/Button";
+import Button from "@/app/_component/ui/Button";
 import { api } from "@/app/_lib/api/api";
 import { Category } from "@/app/_lib/types/category/category";
 import { CreateProductForm } from "@/app/_lib/types/product/create_product_form";
 import { SizeStock } from "@/app/_lib/types/product/size_stock";
-import ProductInputField from "@/app/_component/ProductInputField";
+import ProductInputField from "@/app/_component/ui/ProductInputField";
 import { Variant } from "@/app/_lib/types/product/variant";
-import ProductVariant from "@/app/_component/ProductVariant";
-import AddVariantBtn from "@/app/_component/AddVariantBtn";
+import ProductVariant from "@/app/_component/ui/ProductVariant";
+import AddVariantBtn from "@/app/_component/ui/AddVariantBtn";
 
 const SIZE_LIST = ["S", "M", "L", "XL", "2XL", "FREE"];
 

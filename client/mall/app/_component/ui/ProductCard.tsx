@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Product } from "../_lib/types/product/product";
-import { optimizeImage } from "../_lib/util/common";
+import { Product } from "../../_lib/types/product/product";
+import { optimizeImage } from "../../_lib/util/common";
 
 export default function ProductCard(product: Product) {
   const thumbnail = product.thumbnail ?? null;

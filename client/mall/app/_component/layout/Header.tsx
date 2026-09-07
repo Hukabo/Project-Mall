@@ -1,11 +1,11 @@
 "use client";
 
 import { useContext, useEffect, useRef, useState } from "react";
-import { UserContext } from "../_lib/provider/UserProvider";
+import { UserContext } from "../../_lib/provider/UserProvider";
 import Link from "next/link";
 import Image from "next/image";
-import SearchBar from "./SearchBar";
-import { useMobileSidebar } from "./MobileSidebarProvider";
+import SearchBar from "../ui/SearchBar";
+import { useMobileSidebar } from "../../_lib/provider/MobileSidebarProvider";
 
 export default function Header() {
   const { user, refetchUser, logout } = useContext(UserContext);

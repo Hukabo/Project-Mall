@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import ImageGallery from "./ImageGallery";
-import ProductActions from "./QuantityBtn";
+import ImageGallery from "../ui/ImageGallery";
+import ProductActions from "../ui/QuantityBtn";
 import {
   Product,
   ProductSpec,
@@ -11,8 +11,8 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { won } from "@/app/_lib/util/common";
 import { SizeStock } from "@/app/_lib/types/product/size_stock";
-import QuantityBtn from "./QuantityBtn";
-import AddToCartBtn from "./AddToCartBtn";
+import QuantityBtn from "../ui/QuantityBtn";
+import AddToCartBtn from "../ui/AddToCartBtn";
 import { api } from "@/app/_lib/api/api";
 import { UserContext } from "@/app/_lib/provider/UserProvider";
 import { useRouter } from "next/navigation";

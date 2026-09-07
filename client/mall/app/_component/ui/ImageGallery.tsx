@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { optimizeImage } from "../_lib/util/common";
+import { optimizeImage } from "../../_lib/util/common";
 
 export default function ImageGallery({
   images,
@@ -24,11 +24,11 @@ export default function ImageGallery({
       {/* 대표 이미지 */}
       <div className="relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200 mb-2">
         <Image
-          src={optimizeImage(images[selected].secure_url, 1000, 1000)}
+          src={optimizeImage(images[selected].secure_url, 800, 800)}
           alt="상품 이미지"
           fill
           loading="eager"
-          priority
+          unoptimized
           className="object-contain"
           sizes="(max-width: 768px) 100vw, 50vw"
         />

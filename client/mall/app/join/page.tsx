@@ -2,7 +2,7 @@
 
 import { SyntheticEvent, useEffect, useState } from "react";
 import { api } from "../_lib/api/api";
-import ShippingAddressForm from "../_component/ShippingAdressForm";
+import ShippingAddressForm from "../_component/forms/ShippingAdressForm";
 import { useRouter } from "next/navigation";
 
 export interface JoinForm {

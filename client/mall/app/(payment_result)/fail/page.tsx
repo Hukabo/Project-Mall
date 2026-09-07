@@ -1,6 +1,6 @@
 "use client";
 
-import PerforatedEdge from "@/app/_component/PerforatedEdge";
+import PerforatedEdge from "@/app/_component/ui/PerforatedEdge";
 import { useSearchParams, useRouter } from "next/navigation";
 
 const ERROR_MESSAGES: Record<string, string> = {

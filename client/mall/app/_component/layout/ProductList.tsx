@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import ProductCard from "./ProductCard";
-import { PageResponse, Product } from "../_lib/types/product/product";
+import ProductCard from "../ui/ProductCard";
+import { PageResponse, Product } from "../../_lib/types/product/product";
 
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "./Loading";
 import { useSearchParams } from "next/navigation";
-import { api } from "../_lib/api/api";
+import { api } from "../../_lib/api/api";
 
 export default function ProductList() {
   const searchParams = useSearchParams();

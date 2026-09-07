@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useState } from "react";
 import { User } from "../types/user/user";
-import Loading from "@/app/_component/Loading";
+import Loading from "@/app/_component/layout/Loading";
 import { api } from "../api/api";
 
 interface UserContextType {

@@ -2,9 +2,9 @@
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import ImageInput from "./ImageInput";
-import { Variant } from "../_lib/types/product/variant";
-import { SizeStock } from "../_lib/types/product/size_stock";
-import { CreateProductForm } from "../_lib/types/product/create_product_form";
+import { Variant } from "../../_lib/types/product/variant";
+import { SizeStock } from "../../_lib/types/product/size_stock";
+import { CreateProductForm } from "../../_lib/types/product/create_product_form";
 
 interface ProductVariantOptions {
   variantIdx: number;

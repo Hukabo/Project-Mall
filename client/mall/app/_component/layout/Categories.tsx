@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { Category } from "../_lib/types/category/category";
+import { Category } from "../../_lib/types/category/category";
 
 export default function Categories({ category }: { category: Category }) {
   return (
