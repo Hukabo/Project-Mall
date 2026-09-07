@@ -76,9 +76,9 @@ export default function OrderPage() {
     setShipping({
       name: user.username,
       phone: user.phone,
-      zonecode: user.address.zonecode ?? "",
-      address: user.address.roadAddress ?? "",
-      addressDetail: user.address.detailAddress ?? "",
+      zonecode: user.address?.zonecode ?? "",
+      address: user.address?.roadAddress ?? "",
+      addressDetail: user.address?.detailAddress ?? "",
       memo: "",
     });
 

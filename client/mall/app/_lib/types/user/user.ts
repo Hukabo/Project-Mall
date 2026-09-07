@@ -5,7 +5,7 @@ export interface User {
   email: string;
   username: string;
   phone: string;
-  address: AddressForm;
+  address: AddressForm | null;
   roles: string[];
   cart: Cart;
 }
