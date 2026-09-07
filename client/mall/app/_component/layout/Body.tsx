@@ -1,6 +1,6 @@
 import ProductList from "./ProductList";
 import ResponsiveSidebar from "./ResponsiveSidebar";
-import Sidebar from "../Sidebar";
+import Sidebar from "./Sidebar";
 
 export default function Body() {
   return (
