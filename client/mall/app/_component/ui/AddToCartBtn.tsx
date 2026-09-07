@@ -1,9 +1,13 @@
 export default function AddToCartBtn({
   onSubmit,
   added,
+  liked,
+  onToggleLike,
 }: {
   onSubmit: Function;
   added: boolean;
+  liked: boolean;
+  onToggleLike: () => void;
 }) {
   return (
     <div className="flex gap-2">
@@ -21,10 +25,17 @@ export default function AddToCartBtn({
         바로구매
       </button>
       <button
-        className="w-11 h-11 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors"
-        aria-label="찜하기"
+        type="button"
+        onClick={onToggleLike}
+        aria-label={liked ? "찜 해제하기" : "찜하기"}
+        aria-pressed={liked}
+        className={`w-11 h-11 rounded-lg border flex items-center justify-center text-lg transition-all duration-200 active:scale-90 ${
+          liked
+            ? "border-rust/40 bg-rust/5 text-rust"
+            : "border-gray-200 text-gray-400 hover:text-rust hover:border-rust/40"
+        }`}
       >
-        ♡
+        {liked ? "♥" : "♡"}
       </button>
     </div>
   );
