@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ProductView } from './productView.entity';
+import { Like } from '../../like/entity/like.entity';
 import { TimeStamp } from '../../../embedded_columns/time_stamp';
 
 @Entity('product')
@@ -38,6 +39,9 @@ export class Product {
 
   @OneToMany(() => ProductView, (productView) => productView.product)
   productViews!: ProductView[]; // 상품의 이미지와 색상을 담당하는 Entity
+
+  @OneToMany(() => Like, (like) => like.product)
+  likes!: Like[];
 
   @Column(() => TimeStamp)
   timeStamp!: TimeStamp;

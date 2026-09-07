@@ -32,11 +32,39 @@ export default function ProductClient({ product }: { product: Product }) {
   const [current, setCurrent] = useState<ProductView>(product.productViews[0]);
   const [itemList, setItemList] = useState<Item[]>([]);
   const [added, setAdded] = useState(false);
+  const [liked, setLiked] = useState(false);
   const views = product.productViews;
   const total = itemList.reduce(
     (sum, item) => sum + item.quantity * product.price,
     0,
   );
+
+  useEffect(() => {
+    if (!user) {
+      setLiked(false);
+      return;
+    }
+
+    api
+      .get<{ liked: boolean }>(`likes/${product.id}`)
+      .then((res) => setLiked(res.liked))
+      .catch((error) => console.error(error));
+  }, [user, product.id]);
+
+  async function toggleLike() {
+    if (!user) {
+      alert("로그인 후 이용해주세요");
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const res = await api.post<{ liked: boolean }>(`likes/${product.id}`);
+      setLiked(res.liked);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   function addItem(id: number) {
     const spec = current.productSpecs.find((s) => s.id === id);
@@ -267,7 +295,12 @@ export default function ProductClient({ product }: { product: Product }) {
               </ul>
             </div>
 
-            <AddToCartBtn onSubmit={addtoCart} added={added} />
+            <AddToCartBtn
+              onSubmit={addtoCart}
+              added={added}
+              liked={liked}
+              onToggleLike={toggleLike}
+            />
           </div>
         </div>
 

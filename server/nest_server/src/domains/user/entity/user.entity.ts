@@ -1,5 +1,6 @@
 import { Cart } from '../../cart/entity/cart.entity';
 import { Order } from '../../order/entity/order.entity';
+import { Like } from '../../like/entity/like.entity';
 import { Role } from '../../../enums/role.enum';
 import * as bcrypt from 'bcrypt';
 import {
@@ -58,6 +59,9 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders!: Order[];
+
+  @OneToMany(() => Like, (like) => like.user)
+  likes!: Like[];
 
   @Column(() => TimeStamp)
   timeStamp!: TimeStamp;
