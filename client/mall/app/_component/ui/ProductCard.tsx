@@ -1,36 +1,37 @@
 import Image from "next/image";
 import { Product } from "../../_lib/types/product/product";
-import { optimizeImage } from "../../_lib/util/common";
+import { optimizeImage, won } from "../../_lib/util/common";
 
 export default function ProductCard(product: Product) {
   const thumbnail = product.thumbnail ?? null;
 
   return (
-    <div className="w-full h-75 flex flex-col px-3 py-1.5 border border-grey-dark-3 shadow-dark cursor-pointer bg-grey-light-3 transition-all duration-300 hover:-translate-y-2.5">
-      <div className="relative w-full h-50 overflow-hidden rounded-md self-center mb-3">
+    <div className="group flex w-full flex-col border border-line bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-moss/40 hover:shadow-lg">
+      <div className="relative w-full aspect-square overflow-hidden bg-grey-light-2">
         {thumbnail ? (
           <Image
             src={optimizeImage(thumbnail, 400, 400)}
             alt={`product preview-${product.name}`}
-            className="object-contain rounded-sm"
+            className="object-contain p-5 transition-transform duration-300 group-hover:scale-105"
             fill
             sizes="200px"
             loading="lazy"
           />
         ) : (
-          <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
-            <span className="text-sm">이미지 없음</span>
+          <div className="flex h-full w-full items-center justify-center text-ink-soft">
+            <span className="font-mono text-xs uppercase tracking-widest">
+              이미지 없음
+            </span>
           </div>
         )}
       </div>
-      <div className="">
-        <p className="truncate font-light">{product.name}</p>
-        <p>{product.price.toLocaleString()}원</p>
-        <p>
-          평점:{" "}
-          <span className="text-ochre">
-            &#9734;&#9734;&#9734;&#9734;&#9734; (0)
-          </span>
+      <div className="flex flex-col gap-1.5 px-4 py-3.5">
+        <p className="truncate font-display text-base text-ink">
+          {product.name}
+        </p>
+        <p className="font-mono text-sm text-ochre">{won(product.price)}</p>
+        <p className="font-mono text-xs text-ink-soft">
+          평점: <span className="text-ochre">★★★★★</span> (0)
         </p>
       </div>
     </div>
